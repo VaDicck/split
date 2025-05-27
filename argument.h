@@ -8,10 +8,20 @@ private:
     QString nameArgument;  // Имя аргумента
     QString type;          // Тип аргумента
 public:
-    void setName(const QString& name); //Сеттер для имени
-    void setType(const QString& type); //Сеттер для типа
-    QString getName(); //Геттер для имени
-    QString getType(); //Геттер для типа
+    // Геттеры
+    QString getName();
+    QString getType();
+
+    // Сеттеры
+    void setName(const QString& name);
+    void setType(const QString& type);
+
+    // Конструкторы
+    argument();
+    argument(const QString& name, const QString& type);
+
+    // Перегрузка оператора сравнения
+    bool operator==(const argument& other) const;
 };
 
 #endif // ARGUMENT_H
