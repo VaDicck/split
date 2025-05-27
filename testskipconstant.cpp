@@ -1,113 +1,56 @@
 #include "testskipconstant.h"
 #include "main.h"
 
-void testSkipConstant::symbolConstat(){
-    QString str = "char brac = '{' ;";
-    int indexStart = 13;
-    char simbol = '\'';
-    bool exResult = true;
-    int exIndex = 15;
+void testSkipConstant::add_data(){
+    QTest::addColumn<QString>("str");
+    QTest::addColumn<int>("indexStart");
+    QTest::addColumn<char>("simbol");
+    QTest::addColumn<bool>("exResult");
+    QTest::addColumn<int>("exIndex");
+
+    QTest::newRow("symbolConstat")
+        << QString("char brac = '{' ;") << 13 << '\'' << true << 15;
+
+    QTest::newRow("symbolConstantaShielding")
+        << QString("char brac = '\\'' ;") << 13 << '\'' << true << 16;
+
+    QTest::newRow("symbolConstantaShieldingOfShielding")
+        << QString("char brac = '\\\\' ;") << 13 << '\'' << true << 16;
+
+    QTest::newRow("stringConstant")
+        << QString("String a= \"Hi, tun\";") << 11 << '"' << true << 19;
+
+    QTest::newRow("stringConstantTwoShields")
+        << QString("String a= \"Hi\\\"t\\\"\";") << 11 << '"' << true << 19;
+
+    QTest::newRow("stringConstantShieldingOfShielding")
+        << QString("String a= \"Hi, \\\\\";") << 11 << '"' << true << 18;
+
+    QTest::newRow("notCompletedSymbolConstant")
+        << QString("char brac = 'a ;") << 13 << '\'' << false << 13;
+
+    QTest::newRow("notCompletedStringConstant")
+        << QString("String a= \"Hi, tun ;") << 11 << '"' << false << 11;
+
+    QTest::newRow("multipleShielding")
+        << QString("String a= \"\\\\\\\\\\\" ;") << 11 << '"' << false << 11;
+
+    QTest::newRow("symbolConstantIncludesStringConstant")
+        << QString("String a= \"Hi, 'u'\";") << 11 << '"' << true << 19;
+
+    QTest::newRow("stringConstantIncludesSimbolConstant")
+        << QString("char brac = '\"' ;") << 13 << '\'' << true << 15;
+}
+
+void testSkipConstant::add(){
+    QFETCH(QString, str);
+    QFETCH(int, indexStart);
+    QFETCH(char, simbol);
+    QFETCH(bool, exResult);
+    QFETCH(int, exIndex);
+
     bool result = skipConstant(str, indexStart, simbol);
     QCOMPARE(result, exResult);
     QCOMPARE(indexStart, exIndex);
 }
-void testSkipConstant::symbolConstantaShielding(){
-    QString str = "char brac = '\\'' ;";
-    int indexStart = 13;
-    char simbol = '\'';
-    bool exResult = true;
-    int exIndex = 16;
-    bool result = skipConstant(str, indexStart, simbol);
-    QCOMPARE(result, exResult);
-    QCOMPARE(indexStart, exIndex);
-}
-void testSkipConstant::symbolConstantaShieldingOfShielding(){
-    QString str = "char brac = '\\\\' ;";
-    int indexStart = 13;
-    char simbol = '\'';
-    bool exResult = true;
-    int exIndex = 16;
-    bool result = skipConstant(str, indexStart, simbol);
-    QCOMPARE(result, exResult);
-    QCOMPARE(indexStart, exIndex);
-}
-void testSkipConstant::stringConstant(){
-    QString str = "String a= \"Hi, tun\";";
-    int indexStart = 11;
-    char simbol = '"';
-    bool exResult = true;
-    int exIndex = 19;
-    bool result = skipConstant(str, indexStart, simbol);
-    QCOMPARE(result, exResult);
-    QCOMPARE(indexStart, exIndex);
-}
-void testSkipConstant::stringConstantTwoShields(){
-    QString str = "String a= \"Hi\\\"t\\\"\";";
-    int indexStart = 11;
-    char simbol = '"';
-    bool exResult = true;
-    int exIndex = 19;
-    bool result = skipConstant(str, indexStart, simbol);
-    QCOMPARE(result, exResult);
-    QCOMPARE(indexStart, exIndex);
-}
-void testSkipConstant::stringConstantShieldingOfShielding(){
-    QString str = "String a= \"Hi, \\\\\";";
-    int indexStart = 11;
-    char simbol = '"';
-    bool exResult = true;
-    int exIndex = 18;
-    bool result = skipConstant(str, indexStart, simbol);
-    QCOMPARE(result, exResult);
-    QCOMPARE(indexStart, exIndex);
-}
-void testSkipConstant::notCompletedSymbolConstant(){
-    QString str = "char brac = 'a ;";
-    int indexStart = 13;
-    char simbol = '\'';
-    bool exResult = false;
-    int exIndex = 13;
-    bool result = skipConstant(str, indexStart, simbol);
-    QCOMPARE(result, exResult);
-    QCOMPARE(indexStart, exIndex);
-}
-void testSkipConstant::notCompletedStringConstant(){
-    QString str = "String a= \"Hi, tun ;";
-    int indexStart = 11;
-    char simbol = '"';
-    bool exResult = false;
-    int exIndex = 11;
-    bool result = skipConstant(str, indexStart, simbol);
-    QCOMPARE(result, exResult);
-    QCOMPARE(indexStart, exIndex);
-}
-void testSkipConstant::multipleShielding(){
-    QString str = "String a= \"\\\\\\\\\\\" ;";
-    int indexStart = 11;
-    char simbol = '"';
-    bool exResult = false;
-    int exIndex = 11;
-    bool result = skipConstant(str, indexStart, simbol);
-    QCOMPARE(result, exResult);
-    QCOMPARE(indexStart, exIndex);
-}
-void testSkipConstant::symbolConstantIncludesStringConstant(){
-    QString str = "String a= \"Hi, 'u'\";";
-    int indexStart = 11;
-    char simbol = '"';
-    bool exResult = true;
-    int exIndex = 19;
-    bool result = skipConstant(str, indexStart, simbol);
-    QCOMPARE(result, exResult);
-    QCOMPARE(indexStart, exIndex);
-}
-void testSkipConstant::stringConstantIncludesSimbolConstant(){
-    QString str = "char brac = '\"' ;";
-    int indexStart = 13;
-    char simbol = '\'';
-    bool exResult = true;
-    int exIndex = 15;
-    bool result = skipConstant(str, indexStart, simbol);
-    QCOMPARE(result, exResult);
-    QCOMPARE(indexStart, exIndex);
-}
+
