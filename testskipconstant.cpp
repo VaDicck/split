@@ -13,7 +13,7 @@ void testSkipConstant::add_data(){
     QTest::newRow("symbolConstat") << QString("char brac = '{' ;") << 13 << '\'' << true << 15;
 
     // Тест 2. Пропустить символьную константу с экранированием
-    QTest::newRow("symbolConstantaShielding") << QString("char brac = '\'' ;") << 13 << '\'' << true << 16;
+    QTest::newRow("symbolConstantaShielding") << QString("char brac = '\\'' ;") << 13 << '\'' << true << 16;
 
     // Тест 3. Пропустить символьную константу с экранированием экранирования
     QTest::newRow("symbolConstantaShieldingOfShielding") << QString("char brac = '\\\\' ;") << 13 << '\'' << true << 16;
@@ -34,7 +34,7 @@ void testSkipConstant::add_data(){
     QTest::newRow("notCompletedStringConstant") << QString("String a= \"Hi, tun ;") << 11 << '"' << false << 20;
 
     // Тест 9. Множественное экранирование
-    QTest::newRow("multipleShielding") << QString("String a= \"\\\\\\\\\\\\\" ;") << 11 << '"' << false << 18;
+    QTest::newRow("multipleShielding") << QString("String a= \"\\\\\\\\\\\\\" ;") << 11 << '"' << true << 18;
 
     // Тест 10. Символьная константа в строковой
     QTest::newRow("symbolConstantIncludesStringConstant") << QString("String a= \"Hi, 'u'\";") << 11 << '"' << true << 19;
