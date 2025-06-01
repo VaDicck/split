@@ -5,8 +5,9 @@
 
 int main(int argc, char *argv[])
 {
-    QTest::qExec(new testSkipConstant,argc,argv);
-    QTest::qExec(new testSkipMultipleComment,argc,argv);
+    //QTest::qExec(new testSkipConstant,argc,argv);
+    //QTest::qExec(new testSkipMultipleComment,argc,argv);
+    QTest::qExec(new testFindLexemes,argc,argv);
 }
 
 //Пропустить константу
@@ -85,7 +86,85 @@ bool skipMultilineComment(const QStringList &code,  int &indexCurrentString, int
 //Найти лексемы
 QPair<QString, QStringList> findLexemes(const QStringList &code, int &currentString, int &currentSimbol,const QStringList &neededLexemes,const QStringList &needSimbols, const QStringList &endLexemes)
 {
-
+    bool flagNeedLexemes = true;
+    if(neededLexemes.empty()){
+        flagNeedLexemes = false;
+    }
+    QPair<QString, QStringList> foundLexemes;
+    QStringList lexems;
+    QString wordString ="";
+    for(int i=0;i<needSimbols.size();++i){
+        wordString.append("|\\");
+        wordString.append(needSimbols[i]);
+    }
+    for(int i=0;i<endLexemes.size();++i){
+        if(endLexemes[i].size() == 1){
+            wordString.append("|\\");
+            wordString.append(endLexemes[i]);
+        }
+    }
+    //Создать шаблон для регулярного выражения, которое будет искать любые слова через разделители и нужные символы
+    QString pattern = "\\b\\w+\\b|\\/\\*|\\\"|\\'|\\//";
+    //QString pattern = "\\b[a-zA-Z_\\d]+(_[a-zA-Z_\\d]+)*\\b|\\/\\*|\\\"|\\'|\\//";
+    pattern.append(wordString);
+    //Создать регулярное выражение по шаблону
+    QRegularExpression modifierRegex(pattern);
+    //Пока текущая строка меньше строки с завершением лексем
+    while(currentString<code.size()) {
+        //Найти ближайшую лексему в текущей строке после текущего символа
+        QRegularExpressionMatch match = modifierRegex.match(code[currentString].mid(currentSimbol));
+        //Если найдена лексема
+        if (match.hasMatch()) {
+            QString foundWord =match.captured();
+            currentSimbol = currentSimbol +match.capturedEnd();
+            //Если многострочный комментарий
+            if(foundWord == "/*"){
+                //Пропустить многострочный комментарий
+                skipMultilineComment(code, currentString, currentSimbol);
+            }
+            //Иначе если строковая константа
+            else if(foundWord == "\""){
+                //Пропустить строковую константу
+                skipConstant(code[currentString], currentSimbol, '"');
+            }
+            //Иначе если символьная константа
+            else if(foundWord == "'"){
+                //Пропустить символьную константу
+                skipConstant(code[currentString], currentSimbol, '\'');
+            }
+            //Иначе если однострочный комментарий
+            else if(foundWord == "//"){
+                //Перейти на следующую строку
+                currentString++;
+                currentSimbol=0;
+            }
+            //Иначе
+            else{
+                //Считать лексему найденно
+                foundLexemes.second.append(foundWord);
+                //Если она одна из нужных, то считать нужную лексему найденной
+                for(int i=0;i<neededLexemes.size() && flagNeedLexemes == true;++i){
+                    if(foundWord == neededLexemes[i]){
+                        foundLexemes.first = foundWord;
+                        flagNeedLexemes = false;
+                    }
+                }
+                //Вернуть найденные лекскемы, если она одна из завершающих
+                for(int i=0;i<endLexemes.size();++i){
+                    if(foundWord == endLexemes[i]){
+                        return foundLexemes;
+                    }
+                }
+            }
+        }
+        //Иначе перейти на следующую строку
+        else{
+            currentString++;
+            currentSimbol = 0;
+        }
+    }
+    //Вернуть найденные лексемы
+    return foundLexemes;
 }
 
 //Разбить пакет
