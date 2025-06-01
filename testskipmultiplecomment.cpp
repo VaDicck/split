@@ -22,12 +22,12 @@ void testSkipMultipleComment::add_data()
     // Тест 3. Экранирование
     QTest::newRow("shielding")
         << QStringList{"char br/**= ‘a’\\*/;", "int a=7, b=4;", "int g();*/ int c;"}
-        << 0 << 9 << 2 << 10 << true;
+        << 0 << 9 << 0 << 18 << true;
 
     // Тест 4. Множественное экранирование
     QTest::newRow("multipleShielding")
         << QStringList{"char br/**= ‘a’\\\\\\*/;", "int a=7, b=4;", "int g();*/ int c;"}
-        << 0 << 9 << 2 << 10 << true;
+        << 0 << 9 << 0 << 20 << true;
 
     // Тест 5. Экранирование экранирования перед комментарием
     QTest::newRow("shieldingOfShieldingBeforeComment")
@@ -42,7 +42,7 @@ void testSkipMultipleComment::add_data()
     // Тест 7. Экранирован завершающий комментарий
     QTest::newRow("shieldingFinalComment")
         << QStringList{"char br/**= ‘a’   ;", "int a=7, b=4;", "int g(); \\*/  int c;"}
-        << 0 << 9 << 0 << 9 << false;
+        << 0 << 9 << 2 << 12 << true;
 
     // Тест 8. Слэш внутри комментария
     QTest::newRow("slashInsideComment")
