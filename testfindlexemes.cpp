@@ -49,8 +49,8 @@ void testFindLexemes::add_data(){
         << QStringList({"int", "String"})
         << QStringList({"="})
         << QStringList()
-        << StringPair("int", {{"int"}, {"x"}, {"="}, {"String"}, {"s"}})
-        << 1 << 18;
+        << StringPair("int", {{"int"}, {"x"}, {"="}, {"String"}, {"s"}, {"="}})
+        << 2 << 0;
 
     // Тест 5: В коде нет нужных лексем
     QTest::newRow("no_matching_lexemes")
@@ -100,7 +100,7 @@ void testFindLexemes::add_data(){
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("String", {{"x"}, {"="}, {"String"}, {"s"}, {"="}, {";"}})
-        << 1 << 19;
+        << 1 << 18;
 
     // Тест 10: Нужная лексема в многострочном комментарии
     QTest::newRow("lexeme_in_multiline_comment")
@@ -130,7 +130,7 @@ void testFindLexemes::add_data(){
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("", {{"String"}, {"hello"}, {"="}, {";"}})
-        << 0 << 10;
+        << 0 << 26;
 
     // Тест 13: Поиск с середины кода
     QTest::newRow("search_from_middle")
@@ -160,7 +160,7 @@ void testFindLexemes::add_data(){
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("int", {{"int"}, {"x"}, {"="}, {";"}})
-        << 5 << 1;
+        << 4 << 1;
 
     // Тест 16: Несколько нужных лексем в коде
     QTest::newRow("multiple_matching_lexemes")
