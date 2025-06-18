@@ -17,9 +17,9 @@ public:
 
     // Геттеры
     QString getNamePackage() const;
-    QMap<QString, package_info> getChildren() const;
-    QMap<QString, class_info> getIncludesClasses() const;
-    QMap<QString, interface_info> getIncludesInterfaces() const;
+    QMap<QString, package_info>& getChildren();
+    QMap<QString, class_info>& getIncludesClasses();
+    QMap<QString, interface_info>& getIncludesInterfaces();
 
     // Сеттеры
     void setNamePackage(const QString& name);
@@ -30,8 +30,15 @@ public:
     // Методы для работы с дочерними пакетами
     void addChildPackage(const QString& name, const package_info& pkg);
 
+    // Методы для добавления контенеров
+    void addMapClass(const class_info &Class);
+    void addMapInterface(const interface_info &Interface);
+
     // Перегрузка оператора ==
     bool operator==(const package_info& other) const;
+
+    // Метод для сравнивания путей пакетов
+    QString compare(const package_info& other, const QString& parentPath = "") const;
 
 private:
     QString namePackage;
