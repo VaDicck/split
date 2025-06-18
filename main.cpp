@@ -5,6 +5,9 @@
 
 int main(int argc, char *argv[])
 {
+    //QTest::qExec(new testsplitmethod,argc,argv);
+    //QTest::qExec(new testsplitclass,argc,argv);
+    //QTest::qExec(new testsplitpackage,argc,argv);
 }
 
 //Пропустить константу
@@ -388,29 +391,64 @@ interface_info splitInterface(const QStringList &code, int &indexCurrentString, 
 
 // Разбить поле
 QMap<QString, field> splitField(const QStringList &fieldDeclaration){
+    // Контейнер полей
     QMap<QString, field> arrayFields;
     field currentField;
-    int indexType=1;
+    int currentIndex=1;
+    // Если поле является статическим
     if(fieldDeclaration.contains("static")) {
         currentField.setIsStatic(true);
-        indexType++;
+        currentIndex++;
     }
+    // Найти модификатор доступа
     if(fieldDeclaration.contains("public"))  currentField.setMod("Public");
     else if(fieldDeclaration.contains("private")) currentField.setMod("Private");
     else if(fieldDeclaration.contains("protected"))  currentField.setMod("Protected");
+    // Если модификатора доступа нет
     else{
-        indexType--;
+        currentIndex--;
         currentField.setMod("Private");
     }
-    currentField.setType(fieldDeclaration[indexType]);
-    indexType++;
-    while(fieldDeclaration.mid(indexType).contains(",") == true){
-        currentField.setNameField(fieldDeclaration[indexType]);
-        arrayFields.insert(fieldDeclaration[indexType], currentField);
-        indexType = fieldDeclaration.mid(indexType).indexOf(",")+indexType+1;
+    // Если является массивом, поставить [] у типа
+    if(fieldDeclaration.contains("[")&&fieldDeclaration.contains("]")){
+        currentField.setType(fieldDeclaration[currentIndex]+"["+"]");
+        currentIndex++;
     }
-    currentField.setNameField(fieldDeclaration[indexType]);
-    arrayFields.insert(fieldDeclaration[indexType], currentField);
+    // Если тип является контейнером
+    else if(fieldDeclaration.contains("<")&&fieldDeclaration.contains(">")){
+        QString type;
+        bool flagClose = false;
+        int kolvoOpenScob = 0, kolvoCloseScob = 0;
+        while(flagClose == false || currentIndex != fieldDeclaration.size()-1){
+            if(fieldDeclaration[currentIndex] == ",") type.append(fieldDeclaration[currentIndex] + " ");
+            else type.append(fieldDeclaration[currentIndex]);
+            if(fieldDeclaration[currentIndex] == "<"){
+                kolvoOpenScob++;
+            }
+            else if(fieldDeclaration[currentIndex] == ">"){
+                kolvoCloseScob++;
+            }
+            if((kolvoOpenScob == kolvoCloseScob) && kolvoOpenScob!=0) flagClose=true;
+            currentIndex++;
+        }
+        currentField.setType(type);
+    }
+    // Обычный тип
+    else{
+        currentField.setType(fieldDeclaration[currentIndex]);
+        currentIndex++;
+    }
+    // Пока есть перечисление полей данного типа
+    while(fieldDeclaration.mid(currentIndex).contains(",") == true){
+        currentField.setNameField(fieldDeclaration[currentIndex]);
+        // Добавить текущее поле в массив полей
+        arrayFields.insert(fieldDeclaration[currentIndex], currentField);
+        // Перейти к следующему
+        currentIndex = fieldDeclaration.mid(currentIndex).indexOf(",")+currentIndex+1;
+    }
+    currentField.setNameField(fieldDeclaration[currentIndex]);
+    arrayFields.insert(fieldDeclaration[currentIndex], currentField);
+    // Вернуть массив полей
     return arrayFields;
 }
 
