@@ -343,6 +343,23 @@ void testsplitmethod::add_data() {
                QStringList({"{", "int c =14; char f = 'a';", "if(c==14){", "if(c>5){/*{{*/}", "bool c = 1;}", "String str = \"{vloj}\";", "}"}), {argument("lego", "int")}
                )
         << 7 << 1 << QSet<error>();
+
+    // Тест 29: Статический конструктор
+    QTest::newRow("simple_static_initializer")
+        << QStringList({
+               "class SimpleClass {",
+               "static int count;",
+               "static {",
+               "count = 10;",
+               "}",
+               "}"
+           })
+        << 2 << 8 << "SimpleClass"
+        << QStringList({"static", "{"})
+        << method("default", "static",QStringList({"{", "count = 10;", "}"}),{})
+        << 4 << 1 << QSet<error>();
+
+
 }
 
 void testsplitmethod::add() {
