@@ -5,9 +5,6 @@
 
 int main(int argc, char *argv[])
 {
-    //QTest::qExec(new testsplitmethod,argc,argv);
-    //QTest::qExec(new testsplitclass,argc,argv);
-    //QTest::qExec(new testsplitpackage,argc,argv);
 }
 
 //Пропустить константу
@@ -215,6 +212,97 @@ QString splitImport(const QStringList &declarationImport){
 
 //Разбить метод
 method splitMethod(const QStringList &code, int &indexCurrentString, int &indexCurrentSimbol, const QString &nameClass, const QStringList &methodDeclaration, QSet<error> &errors){
+    // Если является статическим блоком
+    method currentMethod;
+    if(methodDeclaration.size() == 2 && methodDeclaration[0] == "static") currentMethod = method("default", "static", {}, {});
+    else{
+        QString nameMethod;
+        QString mod;
+        //Найти индекс начала ( с аргументами
+        int indexStartArg = methodDeclaration.indexOf("(");
+        //Найти имя метода(перед скобкой с аргументами)
+        nameMethod = methodDeclaration[indexStartArg-1];
+        //Если имя не совпадает с именем класса
+        //Получить строки до ( это объявление
+        //Получить строку в ) это аргументы
+        QStringList stringBeforeArg = methodDeclaration.mid(0, indexStartArg);
+        QStringList stringArg = methodDeclaration.mid(indexStartArg+1, methodDeclaration.size() -indexStartArg-3 );
+        //Если в объявлении есть public
+        //Считать что модификатор доступа public
+        if(stringBeforeArg.contains("public"))  mod = "Public";
+        //Иначе если в объявлении есть private
+        //Считать что модификатор доступа private
+        else if(stringBeforeArg.contains("private")) mod = "Private";
+        //Иначе если в объявлении есть protected
+        //Считать что модификатор доступа protected
+        else if(stringBeforeArg.contains("protected"))  mod = "Protected";
+        //Иначе
+        //Считать что модификатор доступа private
+        else  mod = "default";
+        QVector<argument> arguments;
+        //Если список аргументов не пуст
+        if(!stringArg.empty()){
+            argument arg;
+            // Обходим аргументы с конца
+            int i = stringArg.size();
+            while(i>-1){
+                QString type;
+                i--;
+                arg.setName(stringArg[i]);
+                i--;
+                bool flagInsideContainer = false;
+                int countCloseScob = 0, countOpenScob = 0;
+                do{
+                    if(stringArg[i] == ">") {
+                        countCloseScob++;
+                        flagInsideContainer = true;
+                    }
+                    else if(stringArg[i] == "<"){
+                        countOpenScob++;
+                        if(countCloseScob == countOpenScob) flagInsideContainer ==false;
+                    }
+                    if(stringArg[i] == "," && flagInsideContainer == true) type.prepend(", ");
+                    else type.prepend(stringArg[i]);
+                    i--;
+                }while(i>-1 && ((flagInsideContainer == true) || (stringArg[i]!=",")));
+                arg.setType(type);
+                arguments.prepend(arg);
+            }
+        }
+        QString filename;
+        filename.append("(");
+        if(arguments.isEmpty() == false){
+            for(int i = 0;i< arguments.size()-1;++i){
+                filename.append(arguments[i].getType());
+                filename.append(", ");
+            }
+            filename.append(arguments[arguments.size()-1].getType());
+        }
+        filename.append(")");
+        currentMethod = method(mod, filename, QStringList({}), arguments);
+        if(nameMethod != nameClass){
+            // Имя метода
+            currentMethod.setNameMethod(nameMethod);
+            // Найдем возвращаемое значение и является ли метод статическим или абстрактным
+            QString reType;
+            for(int i =0;i<stringBeforeArg.size()-1;++i){
+                if(stringBeforeArg[i] == "public" ||stringBeforeArg[i] == "private" ||stringBeforeArg[i] == "protected" || stringBeforeArg[i] == "default"){}
+                else if(stringBeforeArg[i] == "abstract") currentMethod.setIsAbstract(true);
+                else if(stringBeforeArg[i] == "static")  currentMethod.setIsStatic(true);
+                else if(stringBeforeArg[i] == ",") reType.append(", ");
+                else  reType.append(stringBeforeArg[i]);
+            }
+            currentMethod.setReturnType(reType);
+            currentMethod.setFilename(currentMethod.getFilename().prepend(nameMethod));
+        }
+        else{
+            // Нет возвращаемого значения
+            currentMethod.setReturnType("");
+            // Имя файла
+            currentMethod.setFilename(currentMethod.getFilename().prepend(nameClass));
+        }
+    }
+    //----------------------------------------найти код метода------------------------------------------
     //Запоминаем начало метода
     const int startCodeMethodString = indexCurrentString, startCodeMethodSimbol = indexCurrentSimbol;
     //Считаь что количество открывающих скоб 1 закрывающих 0
@@ -234,17 +322,17 @@ method splitMethod(const QStringList &code, int &indexCurrentString, int &indexC
                 indexCurrentSimbol = indexCurrentSimbol +match.capturedEnd();
                 if(foundWord == "/*"){
                     if(!skipMultilineComment(code, indexCurrentString, indexCurrentSimbol)){
-                        errors.insert(error(typeMistakes::notClosedComment,0,indexCurrentString));
+                        errors.insert(error(typeMistakes::notClosedComment,0,0,0,0,0,0,0,0,0,indexCurrentString));
                     }
                 }
                 else if(foundWord == "\""){
                     if(!skipConstant(code[indexCurrentString],indexCurrentSimbol, '"')){
-                        errors.insert(error(typeMistakes::notClosedDoubleQuotes,0,indexCurrentString));
+                        errors.insert(error(typeMistakes::notClosedDoubleQuotes,0,0,0,0,0,0,0,0,0,indexCurrentString));
                     }
                 }
                 else if(foundWord == "'"){
                     if(!skipConstant(code[indexCurrentString],indexCurrentSimbol, '\'')){
-                        errors.insert(error(typeMistakes::notClosedSingleQuotes,0,indexCurrentString));
+                        errors.insert(error(typeMistakes::notClosedSingleQuotes,0,0,0,0,0,0,0,0,0,indexCurrentString));
                     }
                 }
                 else if(foundWord == "//"){
@@ -264,76 +352,21 @@ method splitMethod(const QStringList &code, int &indexCurrentString, int &indexC
                 indexCurrentSimbol = 0;
             }
         }
-        if(startCodeMethodString!=indexCurrentString ){
+        if(countOpenBracket!= countCloseBracket){
+            indexCurrentString = startCodeMethodString, indexCurrentSimbol=startCodeMethodSimbol;
+            errors.insert(error(typeMistakes::noClosingFiguredScoop,0,0,0,0,0,0,0,0,0,indexCurrentString));
+            return currentMethod;
+        }
+        else if(startCodeMethodString!=indexCurrentString ){
             codeMethod.append(code[startCodeMethodString].mid(startCodeMethodSimbol-1));
             codeMethod.append(code.mid(startCodeMethodString+1, (indexCurrentString-1)-(startCodeMethodString)));
             codeMethod.append(code[indexCurrentString].mid(0, indexCurrentSimbol));
         }
         else{
-             codeMethod.append(code[startCodeMethodString].mid(startCodeMethodSimbol-1));
+            codeMethod.append(code[startCodeMethodString].mid(startCodeMethodSimbol-1,indexCurrentSimbol-(startCodeMethodSimbol-1)));
         }
     }
-    QString nameMethod;
-    QString mod;
-    //Найти индекс начала ( с аргументами
-    int indexStartArg = methodDeclaration.indexOf("(");
-    //Найти имя метода(перед скобкой с аргументами)
-    nameMethod = methodDeclaration[indexStartArg-1];
-    //Если имя не совпадает с именем класса
-    //Получить строки до ( это объявление
-    //Получить строку в ) это аргументы
-    QStringList stringBeforeArg = methodDeclaration.mid(0, indexStartArg);
-    QStringList stringArg = methodDeclaration.mid(indexStartArg+1, methodDeclaration.size() -indexStartArg-3 );
-    //Если в объявлении есть public
-    //Считать что модификатор доступа public
-    if(stringBeforeArg.contains("public"))  mod = "Public";
-    //Иначе если в объявлении есть private
-    //Считать что модификатор доступа private
-    else if(stringBeforeArg.contains("private")) mod = "Private";
-    //Иначе если в объявлении есть protected
-    //Считать что модификатор доступа protected
-    else if(stringBeforeArg.contains("protected"))  mod = "Protected";
-    //Иначе
-    //Считать что модификатор доступа private
-    else  mod = "default";
-    QVector<argument> arguments;
-    //Если список аргументов не пуст
-    if(!stringArg.empty()){
-        argument arg;
-        int i=-1;
-        do{
-            i++;
-            arg.setType(stringArg[i]);
-            i++;
-            arg.setName(stringArg[i]);
-            i++;
-            arguments.append(arg);
-        }while(i < stringArg.size() && stringArg[i] == ",");
-    }
-    QString filename;
-    filename.append("(");
-    if(arguments.isEmpty() == false){
-        for(int i = 0;i< arguments.size()-1;++i){
-            filename.append(arguments[i].getType());
-            filename.append(", ");
-        }
-        filename.append(arguments[arguments.size()-1].getType());
-    }
-    filename.append(")");
-    method currentMethod(mod, filename, codeMethod, arguments);
-    if(nameMethod != nameClass){
-        currentMethod.setNameMethod(nameMethod);
-        if(stringBeforeArg.contains("abstract"))  currentMethod.setIsAbstract(true);
-        else if(stringBeforeArg.contains("static")) currentMethod.setIsStatic(true);
-        currentMethod.setReturnType(stringBeforeArg[stringBeforeArg.size()-2]);
-        currentMethod.setFilename(currentMethod.getFilename().prepend(nameMethod));
-    }
-    else{
-        // Нет возвращаемого значения
-        currentMethod.setReturnType("");
-        // Имя файла
-        currentMethod.setFilename(currentMethod.getFilename().prepend(nameClass));
-    }
+    currentMethod.setCode(codeMethod);
     return currentMethod;
 }
 
@@ -341,7 +374,7 @@ method splitMethod(const QStringList &code, int &indexCurrentString, int &indexC
 interface_info splitInterface(const QStringList &code, int &indexCurrentString, int &indexCurrentSimbol , const QStringList &interfaceDeclaration, QSet<error> &errors){
     interface_info foundInterface;
     if(interfaceDeclaration[0] == "public"){
-        foundInterface.setMod("public");
+        foundInterface.setMod("Public");
         foundInterface.setNameInterface(interfaceDeclaration[2]);
     }
     else{
@@ -356,36 +389,38 @@ interface_info splitInterface(const QStringList &code, int &indexCurrentString, 
     //Пока текущая строка меньше количества строк кода
     while(indexCurrentString < code.size()){
         QPair<QString, QStringList> foundLexemes  = findLexemes(code, indexCurrentString, indexCurrentSimbol,{ "class", "interface"}, {"[", "]", "(", ")", ",", "<", ">", "="}, {"{",";", "}"});
-        if(foundLexemes.second.last() == "}") return foundInterface;
-        if(foundLexemes.first == "interface"){
-            interface_info vlojeniInterface = splitInterface(code, indexCurrentString, indexCurrentSimbol,foundLexemes.second, errors);
-            QMap<QString, interface_info> includesInterface = foundInterface.getIncludeInterface();
-            includesInterface.insert(vlojeniInterface.getNameInterface(), vlojeniInterface);
-            foundInterface.setIncludeInterface(includesInterface);
-        }
-        else if(foundLexemes.first == "class"){
-            class_info vnutriClass = splitClass(code, indexCurrentString, indexCurrentSimbol,foundLexemes.second, errors);
-            QMap<QString, class_info> includesClasses = foundInterface.getIncludeClass();
-            includesClasses.insert(vnutriClass.getNameClass(), vnutriClass);
-            foundInterface.setIncludeClass(includesClasses);
-        }
-        else {
-            if(foundLexemes.second.contains("(") == true)
-            {
-                method Method = splitMethod(code, indexCurrentString, indexCurrentSimbol, "", foundLexemes.second, errors);
-                QMap<QString, method> methods = foundInterface.getMethods();
-                methods.insert(Method.getNameMethod(), Method);
-                foundInterface.setMethods(methods);
+        if(indexCurrentString<code.size()){
+            if(foundLexemes.second.last() == "}") return foundInterface;
+            if(foundLexemes.first == "interface"){
+                interface_info vlojeniInterface = splitInterface(code, indexCurrentString, indexCurrentSimbol,foundLexemes.second, errors);
+                QMap<QString, interface_info> includesInterface = foundInterface.getIncludeInterface();
+                includesInterface.insert(vlojeniInterface.getNameInterface(), vlojeniInterface);
+                foundInterface.setIncludeInterface(includesInterface);
             }
-            else{
-                QMap<QString, field> Field = splitField(foundLexemes.second);
-                QMap<QString, field> fields = foundInterface.getFields();
-                fields.insert(Field);
-                foundInterface.setFields(fields);
+            else if(foundLexemes.first == "class"){
+                class_info vnutriClass = splitClass(code, indexCurrentString, indexCurrentSimbol,foundLexemes.second, errors);
+                QMap<QString, class_info> includesClasses = foundInterface.getIncludeClass();
+                includesClasses.insert(vnutriClass.getNameClass(), vnutriClass);
+                foundInterface.setIncludeClass(includesClasses);
+            }
+            else {
+                if(foundLexemes.second.contains("(") == true)
+                {
+                    method Method = splitMethod(code, indexCurrentString, indexCurrentSimbol, "", foundLexemes.second, errors);
+                    QMap<QString, method> methods = foundInterface.getMethods();
+                    methods.insert(Method.getNameMethod(), Method);
+                    foundInterface.setMethods(methods);
+                }
+                else{
+                    QMap<QString, field> Field = splitField(foundLexemes.second);
+                    QMap<QString, field> fields = foundInterface.getFields();
+                    fields.insert(Field);
+                    foundInterface.setFields(fields);
+                }
             }
         }
     }
-    errors.insert(error(typeMistakes::noClosingFiguredScoop));
+    errors.insert(error(typeMistakes::noClosingFiguredScoop, 0, 0,0,0,0,0,0,0,0,indexCurrentString));
     return foundInterface;
 }
 
@@ -407,7 +442,7 @@ QMap<QString, field> splitField(const QStringList &fieldDeclaration){
     // Если модификатора доступа нет
     else{
         currentIndex--;
-        currentField.setMod("Private");
+        currentField.setMod("default");
     }
     // Если является массивом, поставить [] у типа
     if(fieldDeclaration.contains("[")&&fieldDeclaration.contains("]")){
@@ -484,44 +519,44 @@ class_info splitClass(const QStringList &code, int &indexCurrentString, int &ind
     //Пока индекс текущей строки меньше количества строк кода
     while(indexCurrentString < code.size()) {
         QPair<QString, QStringList> foundLexemes = findLexemes(code, indexCurrentString, indexCurrentSimbol,{ "class", "interface"}, {"[", "]", "(", ")", ",", "<", ">", "="}, {"{",";", "}"});
-
-        if(foundLexemes.second.last() == "}") return foundClass;
-        else if(foundLexemes.second.size() > 1){
-            if(foundLexemes.first == "interface") {
-                interface_info vlojeniInterface = splitInterface(code, indexCurrentString, indexCurrentSimbol, foundLexemes.second, errors);
-                QMap<QString, interface_info> includeInterface = foundClass.getIncludeInterface();
-                includeInterface.insert(vlojeniInterface.getNameInterface(), vlojeniInterface);
-                foundClass.setIncludeInterface(includeInterface);
-            }
-            else if(foundLexemes.first == "class") {
-                class_info vlojeniClass = splitClass(code, indexCurrentString, indexCurrentSimbol, foundLexemes.second, errors);
-                QMap<QString, class_info> includesClasses = foundClass.getIncludesClasses();
-                includesClasses.insert(vlojeniClass.getNameClass(), vlojeniClass);
-                foundClass.setIncludesClasses(includesClasses);
-            }
-            else if(foundLexemes.second.contains("(")) {
-                method Method = splitMethod(code, indexCurrentString, indexCurrentSimbol, foundClass.getNameClass(), foundLexemes.second, errors);
-                if(!Method.getNameMethod().isEmpty()) {
-                    QMap<QString, method> methods = foundClass.getMethods();
-                    methods.insert(Method.getNameMethod(), Method);
-                    foundClass.setMethods(methods);
+        if(indexCurrentString<code.size()){
+            if(foundLexemes.second.last() == "}") return foundClass;
+            else if(foundLexemes.second.size() > 1){
+                if(foundLexemes.first == "interface") {
+                    interface_info vlojeniInterface = splitInterface(code, indexCurrentString, indexCurrentSimbol, foundLexemes.second, errors);
+                    QMap<QString, interface_info> includeInterface = foundClass.getIncludeInterface();
+                    includeInterface.insert(vlojeniInterface.getNameInterface(), vlojeniInterface);
+                    foundClass.setIncludeInterface(includeInterface);
                 }
-                else {
-                    QList<constructor> constructors = foundClass.getConstructors();
-                    constructors.append(Method);
-                    foundClass.setConstructors(constructors);
+                else if(foundLexemes.first == "class") {
+                    class_info vlojeniClass = splitClass(code, indexCurrentString, indexCurrentSimbol, foundLexemes.second, errors);
+                    QMap<QString, class_info> includesClasses = foundClass.getIncludesClasses();
+                    includesClasses.insert(vlojeniClass.getNameClass(), vlojeniClass);
+                    foundClass.setIncludesClasses(includesClasses);
+                }
+                else if(foundLexemes.second.contains("(") || (foundLexemes.second.size()==2 &&foundLexemes.second[0]=="static")) {
+                    method Method = splitMethod(code, indexCurrentString, indexCurrentSimbol, foundClass.getNameClass(), foundLexemes.second, errors);
+                    if(!Method.getNameMethod().isEmpty()) {
+                        QMap<QString, method> methods = foundClass.getMethods();
+                        methods.insert(Method.getNameMethod(), Method);
+                        foundClass.setMethods(methods);
+                    }
+                    else {
+                        QList<constructor> constructors = foundClass.getConstructors();
+                        constructors.append(Method);
+                        foundClass.setConstructors(constructors);
+                    }
+                }
+                else{
+                    QMap<QString, field>  newField = splitField(foundLexemes.second);
+                    QMap<QString, field> fields = foundClass.getFields();
+                    fields.insert(newField);
+                    foundClass.setFields(fields);
                 }
             }
-            else{
-                QMap<QString, field>  newField = splitField(foundLexemes.second);
-                QMap<QString, field> fields = foundClass.getFields();
-                fields.insert(newField);
-                foundClass.setFields(fields);
-            }
-
         }
     }
-    errors.insert(error(typeMistakes::noClosingFiguredScoop));
+    errors.insert(error(typeMistakes::noClosingFiguredScoop, 0, 0,0,0,0,0,0,0,0,indexCurrentString));
     return foundClass;
 }
 
