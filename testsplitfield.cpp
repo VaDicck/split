@@ -32,14 +32,14 @@ void testSplitField::add_data() {
     QTest::newRow("no_modifier_field")
         << QStringList({ "int", "a", ";"})
         << fieldMap({
-               {"a", field("a", "int", "Private", false)}
+               {"a", field("a", "int", "default", false)}
            });
 
     // Тест 5: Статическое поле без модификатора
     QTest::newRow("static_no_modifier")
         << QStringList({ "static", "int", "a", ";"})
         << fieldMap({
-               {"a", field("a", "int", "Private", true)}
+               {"a", field("a", "int", "default", true)}
            });
 
     // Тест 6: Статическое перед модификатором
@@ -60,44 +60,44 @@ void testSplitField::add_data() {
     QTest::newRow("initialized_field")
         << QStringList({ "int", "a", "=", "6", ";"})
         << fieldMap({
-               {"a", field("a", "int", "Private", false)}
+               {"a", field("a", "int", "default", false)}
            });
 
     // Тест 9: Несколько полей в объявлении
     QTest::newRow("multiple_fields")
         << QStringList({ "int", "a", "=", "6", ",", "ber", "=", "3", ",", "cac_e", ";"})
         << fieldMap({
-               {"a", field("a", "int", "Private", false)},
-               {"ber", field("ber", "int", "Private", false)},
-               {"cac_e", field("cac_e", "int", "Private", false)}
+               {"a", field("a", "int", "default", false)},
+               {"ber", field("ber", "int", "default", false)},
+               {"cac_e", field("cac_e", "int", "default", false)}
            });
 
     // Тест 10: Контейнерный тип
     QTest::newRow("container_type")
         << QStringList({"Map", "<", "integer", ",", "float", ">", "len"})
         << fieldMap({
-               {"len", field("len", "Map<integer, float>", "Private", false)}
+               {"len", field("len", "Map<integer, float>", "default", false)}
            });
 
     // Тест 11: Вложенные контейнеры
     QTest::newRow("nested_containers")
         << QStringList({"Map", "<", "List", "<", "char", ">", ",", "Map", "<", "int", ",", "double", ">", ">", "len"})
         << fieldMap({
-               {"len", field("len", "Map<List<char>, Map<int, double>>", "Private", false)}
+               {"len", field("len", "Map<List<char>, Map<int, double>>", "default", false)}
            });
 
     // Тест 12: Массив
     QTest::newRow("array_type")
         << QStringList({"int", "a", "[", "]", ";"})
         << fieldMap({
-               {"a", field("a", "int[]", "Private", false)}
+               {"a", field("a", "int[]", "default", false)}
            });
 
     // Тест 13: Массив с размером
     QTest::newRow("sized_array")
         << QStringList({"int", "a", "[", "34", "]", ";"})
         << fieldMap({
-               {"a", field("a", "int[]", "Private", false)}
+               {"a", field("a", "int[]", "default", false)}
            });
 }
 
