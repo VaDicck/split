@@ -11,6 +11,7 @@ constructor::constructor(const QString& mod,
                          const QVector<argument>& arguments)
     : mod(mod), filename(filename), code(code), arguments(arguments) {}
 
+
 // Геттеры
 QString constructor::getMod() const {
     return mod;
@@ -53,3 +54,10 @@ bool constructor::operator==(const constructor& other) const {
            arguments == other.arguments;
 }
 
+// Перегрузка оператора !=
+bool constructor::operator!=(const constructor& other) const {
+    return mod != other.mod &&
+           filename != other.filename &&
+           code != other.code &&
+           arguments != other.arguments;
+}
