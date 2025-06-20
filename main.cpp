@@ -5,6 +5,16 @@
 
 int main(int argc, char *argv[])
 {
+    /////////QTest::qExec(new testSkipConstant,argc,argv);
+    /////////QTest::qExec(new testSkipMultipleComment,argc,argv);
+    /////////QTest::qExec(new testFindLexemes,argc,argv);
+    /////////QTest::qExec(new testSplitField,argc,argv);
+    /////////QTest::qExec(new testsplitimport,argc,argv);
+    /////////QTest::qExec(new testsplitmethod,argc,argv);
+    //QTest::qExec(new testsplitpackage,argc,argv);
+    //QTest::qExec(new testsplitproject,argc,argv);
+    QTest::qExec(new testsplitclass,argc,argv);
+    QTest::qExec(new testsplitinterface,argc,argv);
 }
 
 //Пропустить константу
@@ -407,8 +417,8 @@ interface_info splitInterface(const QStringList &code, int &indexCurrentString, 
                 if(foundLexemes.second.contains("(") == true)
                 {
                     method Method = splitMethod(code, indexCurrentString, indexCurrentSimbol, "", foundLexemes.second, errors);
-                    QMap<QString, method> methods = foundInterface.getMethods();
-                    methods.insert(Method.getNameMethod(), Method);
+                    QSet<method> methods = foundInterface.getMethods();
+                    methods.insert(Method);
                     foundInterface.setMethods(methods);
                 }
                 else{
@@ -494,13 +504,13 @@ class_info splitClass(const QStringList &code, int &indexCurrentString, int &ind
     foundClass.setNameClass(declarationClass[declarationClass.indexOf("class")+1]);
     foundClass.setIsAbstract(declarationClass.contains("abstract"));
     foundClass.setIsStatic(declarationClass.contains("static"));
-    if(declarationClass.contains("public")) foundClass.setMod("public");
+    if(declarationClass.contains("public")) foundClass.setMod("Public");
     //Иначе если в объявлении есть private
     //Считать что модификатор доступа private
-    else if(declarationClass.contains("private")) foundClass.setMod("private");
+    else if(declarationClass.contains("private")) foundClass.setMod("Private");
     //Иначе если в объявлении есть protected
     //Считать что модификатор доступа protected
-    else if(declarationClass.contains("protected")) foundClass.setMod("protected");
+    else if(declarationClass.contains("protected")) foundClass.setMod("Protected");
     //Иначе
     //Считать что модификатор доступа
     else foundClass.setMod("default");
@@ -537,13 +547,13 @@ class_info splitClass(const QStringList &code, int &indexCurrentString, int &ind
                 else if(foundLexemes.second.contains("(") || (foundLexemes.second.size()==2 &&foundLexemes.second[0]=="static")) {
                     method Method = splitMethod(code, indexCurrentString, indexCurrentSimbol, foundClass.getNameClass(), foundLexemes.second, errors);
                     if(!Method.getNameMethod().isEmpty()) {
-                        QMap<QString, method> methods = foundClass.getMethods();
-                        methods.insert(Method.getNameMethod(), Method);
+                        QSet<method> methods = foundClass.getMethods();
+                        methods.insert(Method);
                         foundClass.setMethods(methods);
                     }
                     else {
-                        QList<constructor> constructors = foundClass.getConstructors();
-                        constructors.append(Method);
+                        QSet<constructor> constructors = foundClass.getConstructors();
+                        constructors.insert(Method);
                         foundClass.setConstructors(constructors);
                     }
                 }
@@ -691,3 +701,63 @@ bool readJavaFiles(const QStringList &pathJavaFile, QList<QStringList> &filesCod
 
     return filesCode.size() == 0;
 }
+
+
+// bool createDataFiles(const QString& outputDir,const package_info& packageInfo,QSet<error>& errors)
+// {
+//     // 1. Создаем структуру каталогов пакета
+//     QString packagePath = QDir(outputDir).filePath(packageInfo.getNamePackage().replace('.', QDir::separator()));
+//     QDir dir;
+//     if (!dir.mkpath(packagePath)) {
+//         errors.insert(error(typeMistakes::dirCreationError, 0, 0, 0, 0, 0, "", "", packagePath));
+//         return false;
+//     }
+
+//     // 2. Создаем файлы для классов
+//     const QMap<QString, class_info>& classes = packageInfo.getIncludesClasses();
+//     for (QMap<QString, class_info>::const_iterator it = classes.constBegin(); it != classes.constEnd(); ++it) {
+//         const class_info& classInfo = it.value();
+//         QString classDirPath = QDir(packagePath).filePath("class_" + classInfo.getNameClass());
+//         if (!createClassFiles(classDirPath, classInfo, errors)) {
+//             return false;
+//         }
+//     }
+
+//     // 3. Создаем файлы для интерфейсов
+//     const QMap<QString, interface_info>& interfaces = packageInfo.getIncludesInterfaces();
+//     for (QMap<QString, interface_info>::const_iterator it = interfaces.constBegin(); it != interfaces.constEnd(); ++it) {
+//         const interface_info& interfaceInfo = it.value();
+//         QString interfaceDirPath = QDir(packagePath).filePath("interface_" + interfaceInfo.getNameInterface());
+//         if (!createInterfaceFiles(interfaceDirPath, interfaceInfo, errors)) {
+//             return false;
+//         }
+//     }
+
+//     // 4. Обрабатываем вложенные пакеты
+//     const QMap<QString, package_info>& children = packageInfo.getChildren();
+//     for (QMap<QString, package_info>::const_iterator it = children.constBegin(); it != children.constEnd(); ++it) {
+//         const package_info& childPackage = it.value();
+//         if (!createDataFiles(outputDir, childPackage, errors)) {
+//             return false;
+//         }
+//     }
+
+//     // 5. Создаем файл imports.txt если есть импорты
+//     const QStringList& imports = packageInfo.getImports();
+//     if (!imports.isEmpty()) {
+//         QString importsFilePath = QDir(packagePath).filePath("imports.txt");
+//         QFile importsFile(importsFilePath);
+//         if (importsFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+//             QTextStream out(&importsFile);
+//             for (QStringList::const_iterator it = imports.constBegin(); it != imports.constEnd(); ++it) {
+//                 out << *it << "\n";
+//             }
+//             importsFile.close();
+//         } else {
+//             errors.insert(error(typeMistakes::fileCreationError, 0, 0, 0, 0, 0, "", "", importsFilePath));
+//             return false;
+//         }
+//     }
+
+//     return true;
+// }
