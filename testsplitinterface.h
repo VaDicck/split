@@ -8,12 +8,12 @@
 #include "main.h"
 #include "class_info.h"
 
-class testsplitinterface : public QObject
+class testsplitinterface : public testSplitBase
 {
     Q_OBJECT
 private slots:
-    void add_data();
-    void add();
+    void test_split_data();
+    void test_split();
 };
 
 #endif // TESTSPLITINTERFACE_H
