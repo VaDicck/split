@@ -8,11 +8,11 @@ void argument::setType(const QString& type){
     this->type = type;
 }
 
-QString argument::getName(){
+QString argument::getName() const{
     return this->nameArgument;
 }
 
-QString argument::getType(){
+QString argument::getType() const{
     return this->type;
 }
 
