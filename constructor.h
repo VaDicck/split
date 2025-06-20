@@ -29,6 +29,7 @@ public:
 
     // Перегрузка операторов
     bool operator==(const constructor& other) const;
+    bool operator!=(const constructor& other) const;
 private:
     QString mod;
     QString filename;
@@ -36,4 +37,15 @@ private:
     QVector<argument> arguments;
 };
 
+
+// Хеш-функция
+inline uint qHash(const constructor& key, uint seed = 0) noexcept
+{
+    uint hash = qHash(key.getMod(), seed);
+    hash ^= qHash(key.getFilename(), seed + 1);
+    hash ^= qHash(key.getCode(), seed + 2);
+    hash ^= qHash(key.getArguments(), seed + 3);
+
+    return hash;
+}
 #endif // CONSTRUCTOR_H
