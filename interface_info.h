@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStringList>
 #include <QMap>
+#include <QSet>
 #include "field.h"
 #include "method.h"
 
@@ -16,7 +17,7 @@ public:
                    const QString& mod = "",
                    const QStringList& extends = QStringList(),
                    const QMap<QString, field>& fields = QMap<QString, field>(),
-                   const QMap<QString, method>& methods = QMap<QString, method>(),
+                   const QSet<method>& methods = QSet<method>(),
                    const QMap<QString, interface_info>& includeInterface = QMap<QString, interface_info>(),
                    const QMap<QString, class_info>& includeClass = QMap<QString, class_info>(),
                    const QStringList& import = QStringList());
@@ -26,7 +27,7 @@ public:
     QString getMod() const;
     QStringList getExtends() const;
     QMap<QString, field> getFields() const;
-    QMap<QString, method> getMethods() const;
+    QSet<method> getMethods() const;
     QMap<QString, interface_info> getIncludeInterface() const;
     QMap<QString, class_info> getIncludeClass() const;
     QStringList getImport() const;
@@ -36,10 +37,13 @@ public:
     void setMod(const QString& mod);
     void setExtends(const QStringList& extends);
     void setFields(const QMap<QString, field>& fields);
-    void setMethods(const QMap<QString, method>& methods);
+    void setMethods(const QSet<method>& methods);
     void setIncludeInterface(const QMap<QString, interface_info>& includeInterface);
     void setIncludeClass(const QMap<QString, class_info>& includeClass);
     void setImport(const QStringList& import);
+
+    // Добавление родительского
+    void addExtend(const QString newExtend);
 
     // Перегрузка оператора ==
     bool operator==(const interface_info& other) const;
@@ -49,7 +53,7 @@ private:
     QString mod;
     QStringList extends;
     QMap<QString, field> fields;
-    QMap<QString, method> methods;
+    QSet<method> methods;
     QMap<QString, interface_info> includeInterface;
     QMap<QString, class_info> includeClass;
     QStringList import;
