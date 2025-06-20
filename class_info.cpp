@@ -21,9 +21,9 @@ class_info::class_info(const QString& nameClass,
                        const QString& mod,
                        const QString& extend,
                        const QStringList& implements,
-                       const QList<constructor>& constructors,
+                       const QSet<constructor>& constructors,
                        const QMap<QString, field>& fields,
-                       const QMap<QString, method>& methods,
+                       const QSet<method>& methods,
                        const QMap<QString, class_info>& includesClasses,
                        const QMap<QString, interface_info>& includeInterface,
                        const QStringList& import,
@@ -42,6 +42,7 @@ class_info::class_info(const QString& nameClass,
     isAbstract(isAbstract),
     isStatic(isStatic) {}
 
+
 // Геттеры
 QString class_info::getNameClass() const {
     return nameClass;
@@ -59,7 +60,7 @@ QStringList class_info::getImplements() const {
     return implements;
 }
 
-QList<constructor> class_info::getConstructors() const {
+QSet<constructor> class_info::getConstructors() const {
     return constructors;
 }
 
@@ -67,7 +68,7 @@ QMap<QString, field> class_info::getFields() const {
     return fields;
 }
 
-QMap<QString, method> class_info::getMethods() const {
+QSet<method> class_info::getMethods() const {
     return methods;
 }
 
@@ -108,7 +109,7 @@ void class_info::setImplements(const QStringList& implements) {
     this->implements = implements;
 }
 
-void class_info::setConstructors(const QList<constructor>& constructors) {
+void class_info::setConstructors(const QSet<constructor>& constructors) {
     this->constructors = constructors;
 }
 
@@ -116,7 +117,7 @@ void class_info::setFields(const QMap<QString, field>& fields) {
     this->fields = fields;
 }
 
-void class_info::setMethods(const QMap<QString, method>& methods) {
+void class_info::setMethods(const QSet<method>& methods) {
     this->methods = methods;
 }
 
