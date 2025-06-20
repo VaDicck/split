@@ -5,7 +5,7 @@ interface_info::interface_info(const QString& nameInterface,
                                const QString& mod,
                                const QStringList& extends,
                                const QMap<QString, field>& fields,
-                               const QMap<QString, method>& methods,
+                               const QSet<method>& methods,
                                const QMap<QString, interface_info>& includeInterface,
                                const QMap<QString, class_info>& includeClass,
                                const QStringList& import)
@@ -35,7 +35,7 @@ QMap<QString, field> interface_info::getFields() const {
     return fields;
 }
 
-QMap<QString, method> interface_info::getMethods() const {
+QSet<method> interface_info::getMethods() const {
     return methods;
 }
 
@@ -68,7 +68,7 @@ void interface_info::setFields(const QMap<QString, field>& fields) {
     this->fields = fields;
 }
 
-void interface_info::setMethods(const QMap<QString, method>& methods) {
+void interface_info::setMethods(const QSet<method>& methods) {
     this->methods = methods;
 }
 
@@ -82,6 +82,10 @@ void interface_info::setIncludeClass(const QMap<QString, class_info>& includeCla
 
 void interface_info::setImport(const QStringList& import) {
     this->import = import;
+}
+
+void interface_info::addExtend(const QString newExtend){
+    this->extends.append(newExtend);
 }
 
 // Перегрузка оператора ==
