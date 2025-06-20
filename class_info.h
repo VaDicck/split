@@ -5,9 +5,11 @@
 #include <QStringList>
 #include <QList>
 #include <QMap>
+#include <QSet>
 #include "constructor.h"
 #include "field.h"
 #include "method.h"
+
 class interface_info;
 
 class class_info {
@@ -18,9 +20,9 @@ public:
                const QString& mod,
                const QString& extend,
                const QStringList& implements,
-               const QList<constructor>& constructors,
+               const QSet<constructor>& constructors,
                const QMap<QString, field>& fields,
-               const QMap<QString, method>& methods,
+               const QSet<method>& methods,
                const QMap<QString, class_info>& includesClasses,
                const QMap<QString, interface_info>& includeInterface,
                const QStringList& import,
@@ -32,9 +34,9 @@ public:
     QString getMod() const;
     QString getExtend() const;
     QStringList getImplements() const;
-    QList<constructor> getConstructors() const;
+    QSet<constructor> getConstructors() const;
     QMap<QString, field> getFields() const;
-    QMap<QString, method> getMethods() const;
+    QSet<method> getMethods() const;
     QMap<QString, class_info> getIncludesClasses() const;
     QMap<QString, interface_info> getIncludeInterface() const;
     QStringList getImport() const;
@@ -46,9 +48,9 @@ public:
     void setMod(const QString& mod);
     void setExtend(const QString& extend);
     void setImplements(const QStringList& implements);
-    void setConstructors(const QList<constructor>& constructors);
+    void setConstructors(const QSet<constructor>& constructors);
     void setFields(const QMap<QString, field>& fields);
-    void setMethods(const QMap<QString, method>& methods);
+    void setMethods(const QSet<method>& methods);
     void setIncludesClasses(const QMap<QString, class_info>& includesClasses);
     void setIncludeInterface(const QMap<QString, interface_info>& includeInterface);
     void setImport(const QStringList& import);
@@ -63,9 +65,9 @@ private:
     QString mod;
     QString extend;
     QStringList implements;
-    QList<constructor> constructors;
+    QSet<constructor> constructors;
     QMap<QString, field> fields;
-    QMap<QString, method> methods;
+    QSet<method> methods;
     QMap<QString, class_info> includesClasses;
     QMap<QString, interface_info> includeInterface;
     QStringList import;
