@@ -9,12 +9,12 @@
 #include "error.h"
 
 
-class testsplitmethod : public QObject
+class testsplitmethod : public testSplitBase
 {
     Q_OBJECT
 private slots:
-    void add_data();
-    void add();
+    void test_method_data();
+    void test_method();
 };
 
 #endif // TESTSPLITMETHOD_H
