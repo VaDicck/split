@@ -4,7 +4,7 @@
 method::method()
     : constructor(),
     nameMethod(""),
-    returnType("void"),
+    returnType(""),
     isAbstract(false),
     isStatic(false) {}
 
@@ -22,6 +22,17 @@ method::method(const QString& nameMethod,
     returnType(returnType),
     isAbstract(isAbstract),
     isStatic(isStatic) {}
+
+// Конструктор с 4 параметрами
+method::method(const QString& mod,
+                       const QString& filename,
+                       const QStringList& code,
+                       const QVector<argument>& arguments)
+    : constructor(mod, filename, code, arguments),
+    nameMethod(""),
+    returnType("void"),
+    isAbstract(false),
+    isStatic(false){}
 
 // Геттеры
 QString method::getNameMethod() const {
@@ -65,4 +76,15 @@ bool method::operator==(const method& other) const {
            (returnType == other.returnType) &&
            (isAbstract == other.isAbstract) &&
            (isStatic == other.isStatic);
+}
+
+
+// Перегрузка оператора !=
+bool method::operator!=(const method& other) const {
+    return (static_cast<const constructor&>(*this) !=
+            static_cast<const constructor&>(other)) &&
+           (nameMethod != other.nameMethod) &&
+           (returnType != other.returnType) &&
+           (isAbstract != other.isAbstract) &&
+           (isStatic != other.isStatic);
 }
