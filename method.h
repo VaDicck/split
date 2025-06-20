@@ -17,6 +17,11 @@ public:
            const QString& filename,
            const QStringList& code,
            const QVector<argument>& arguments);
+    method(const QString& mod,
+            const QString& filename,
+            const QStringList& code,
+            const QVector<argument>& arguments);
+
 
     // Геттеры
     QString getNameMethod() const;
@@ -33,6 +38,9 @@ public:
     // Перегрузка оператора ==
     bool operator==(const method& other) const;
 
+    // Перегрузка оператора !=
+    bool operator!=(const method& other) const;
+
 private:
     QString nameMethod;
     QString returnType;
@@ -40,4 +48,17 @@ private:
     bool isStatic;
 };
 
+// Хеш-функция
+inline uint qHash(const method &m, uint seed = 0) {
+    // Хеш родительского класса (constructor)
+    uint hash = qHash(static_cast<const constructor&>(m), seed);
+
+    // Добавляем хеши полей method
+    hash ^= qHash(m.getNameMethod(), seed)
+            ^ qHash(m.getReturnType())
+            ^ qHash(m.getIsAbstract())
+            ^ qHash(m.getIsStatic());
+
+    return hash;
+}
 #endif // METHOD_H
