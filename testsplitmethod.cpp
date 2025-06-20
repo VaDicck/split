@@ -1,6 +1,6 @@
 #include "testsplitmethod.h"
 
-void testsplitmethod::add_data() {
+void testsplitmethod::test_method_data() {
     QTest::addColumn<QStringList>("code");
     QTest::addColumn<int>("inputIndexString");
     QTest::addColumn<int>("inputIndexSimbol");
@@ -362,7 +362,7 @@ void testsplitmethod::add_data() {
 
 }
 
-void testsplitmethod::add() {
+void testsplitmethod::test_method() {
     QFETCH(QStringList, code);
     QFETCH(int, inputIndexString);
     QFETCH(int, inputIndexSimbol);
@@ -380,78 +380,10 @@ void testsplitmethod::add() {
     // Вызов
     method result = splitMethod(code, actualIndexString, actualIndexSimbol, nameClass, methodDeclaration, actualErrors);
 
-    // Проверка текущей строки и символа
     QCOMPARE(actualIndexString, expectedIndexString);
     QCOMPARE(actualIndexSimbol, expectedIndexSimbol);
-
-    // Проверка имени метода
-    QVERIFY2(result.getNameMethod() == expectedMethod.getNameMethod(), qPrintable(QString("\nИмя метода: ожидалось (%1), получено (%2)\n").arg(expectedMethod.getNameMethod()).arg(result.getNameMethod())));
-
-    // Проверка типа возращаемого значения
-    QVERIFY2(result.getReturnType() == expectedMethod.getReturnType(),qPrintable(QString("\nТип возвращаемого значения: ожидалось (%1), получено (%2)\n").arg(expectedMethod.getReturnType()).arg(result.getReturnType())));
-
-    // Проверка абстрактный ли метод
-    QVERIFY2(result.getIsAbstract() == expectedMethod.getIsAbstract(),qPrintable(QString("\nАбстрактный ли метод: ожидалось (%1), получено (%2)\n").arg(expectedMethod.getIsAbstract()).arg(result.getIsAbstract())));
-
-    // Проверка статистический ли метод
-    QVERIFY2(result.getIsStatic() == expectedMethod.getIsStatic(),qPrintable(QString("\nСтатический ли метод: ожидалось (%1), получено (%2)\n").arg(expectedMethod.getIsStatic()).arg(result.getIsStatic())));
-
-    // Проверка модификатора доступа метода
-    QVERIFY2(result.getMod() == expectedMethod.getMod(),qPrintable(QString("\nМодификатор доступа: ожидалось (%1), получено (%2)\n").arg(expectedMethod.getMod()).arg(result.getMod())));
-
-    // Проверка имени файла метода
-    QVERIFY2(result.getFilename() == expectedMethod.getFilename(),qPrintable(QString("\nИмя файла: ожидалось (%1), получено (%2)\n").arg(expectedMethod.getFilename()).arg(result.getFilename())));
-
-    //Проверка кода метода
-    QVERIFY2(result.getCode() == expectedMethod.getCode(),qPrintable(QString("\nКод метода: ожидалось \n%1\nполучено \n%2\n").arg(expectedMethod.getCode().join("\n")).arg(result.getCode().join("\n"))));
-
-    // Проверка аргументов
-    QVector<argument> actualArgs = result.getArguments();
-    QVector<argument> expectedArgs = expectedMethod.getArguments();
-
-    QVERIFY2(actualArgs.size() == expectedArgs.size(),qPrintable(QString("\nКоличество аргументов: ожидалось (%1), получено (%2)\n").arg(expectedArgs.size()).arg(actualArgs.size())));
-
-    for (int i = 0; i < qMin(actualArgs.size(), expectedArgs.size()); ++i) {
-        QVERIFY2(actualArgs[i].getName() == expectedArgs[i].getName(),qPrintable(QString("\nИмя аргумента: ожидалось (%1), получено (%2)\n").arg(expectedArgs[i].getName()).arg(actualArgs[i].getName())));
-
-        QVERIFY2(actualArgs[i].getType() == expectedArgs[i].getType(),qPrintable(QString("\nТип аргумента %1: ожидалось (%2), получено (%3)\n").arg(i).arg(expectedArgs[i].getType()).arg(actualArgs[i].getType())));
-    }
-
-    // Проверка ошибок
-    if (actualErrors != expectedErrors) {
-        QStringList messages;
-
-        // Находим ошибки, которые есть в expected, но нет в actual
-        QSet<error> missingErrors = expectedErrors - actualErrors;
-        for (const error& err : missingErrors) {
-            messages << QString("Отсутствует ожидаемая ошибка: %1 (строка %2, файл %3)").arg(int(err.typeMistake)).arg(err.numberStr).arg(err.fileNumber);
-        }
-
-        // Находим ошибки, которые есть в actual, но нет в expected
-        QSet<error> unexpectedErrors = actualErrors - expectedErrors;
-        for (const error& err : unexpectedErrors) {
-            messages << QString("Обнаружена неожиданная ошибка: %1 (строка %2, файл %3)").arg(int(err.typeMistake)).arg(err.numberStr).arg(err.fileNumber);
-        }
-
-        // Находим ошибки, которые есть в обоих наборах, но различаются по полям
-        QSet<error> commonErrors = actualErrors & expectedErrors;
-        for (const error& err : commonErrors) {
-            const error& expectedErr = *expectedErrors.find(err);
-            if (!(err == expectedErr)) {
-                QStringList diffFields;
-                if (err.typeMistake != expectedErr.typeMistake) diffFields << "тип ошибки";
-                if (err.fileNumber != expectedErr.fileNumber) diffFields << "номер файла";
-                if (err.numberStr != expectedErr.numberStr) diffFields << "номер строки";
-                // Добавьте другие поля по аналогии
-
-                messages << QString("Ошибка %1 отличается по полям: %2")
-                                .arg(int(err.typeMistake))
-                                .arg(diffFields.join(", "));
-            }
-        }
-
-        QVERIFY2(false,qPrintable(QString("Наборы ошибок не совпадают:\n%1\nОжидалось %2 ошибок, получено %3 ошибок").arg(messages.join("\n")).arg(expectedErrors.size()).arg(actualErrors.size())));
-    }
+    verifyMethod(result, expectedMethod);
+    verifyErrors(actualErrors, expectedErrors);
 }
 
 
