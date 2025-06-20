@@ -3,16 +3,17 @@
 #include <QObject>
 #include <QTest>
 #include "field.h"
+#include "testsplitbase.h"
 
 Q_DECLARE_METATYPE(field)
 typedef QMap<QString, field> fieldMap;
 Q_DECLARE_METATYPE(fieldMap)
 
-class testSplitField : public QObject
+class testSplitField : public testSplitBase
 {
     Q_OBJECT
 private slots:
-    void add_data();
-    void add();
+    void test_field_data();
+    void test_field();
 };
 #endif // TESTSPLITFIELD_H
