@@ -8,12 +8,12 @@
 #include "constructor.h"
 #include "main.h"
 
-class testsplitclass : public QObject
+class testsplitclass : public testSplitBase
 {
     Q_OBJECT
 private slots:
-    void add_data();
-    void add();
+    void test_class_data();
+    void test_class();
 
 };
 #endif // TESTSPLITCLASS_H
