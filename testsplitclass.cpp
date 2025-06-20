@@ -2,7 +2,7 @@
 #include "typeMistakes.h"
 #include "main.h"
 
-void testsplitclass::add_data() {
+void testsplitclass::test_class_data() {
     QTest::addColumn<QStringList>("code");
     QTest::addColumn<int>("inputIndexString");
     QTest::addColumn<int>("inputIndexSimbol");
@@ -25,12 +25,12 @@ void testsplitclass::add_data() {
         << 0 << 17
         << QStringList({"class", "TestClass", "{"})
         << class_info(
-               "TestClass", "default", "", QStringList(), QList<constructor>(),
+               "TestClass", "default", "", QStringList(), {},
                {{"b", field("b", "int", "default", false)}},
-               {{"classMethod", method(
+               {                    method(
                                     "classMethod", "void", false, false, "default", "classMethod()",
                                     {"{", "int a;" , "}"}, {}
-                                    )}},
+                                    )},
                {}, {}, {}, false, false
                )
         << 5 << 1 << QSet<error>();
@@ -41,9 +41,9 @@ void testsplitclass::add_data() {
         << 0 << 19
         << QStringList({"class", "TestClass", "{"})
         << class_info(
-               "TestClass", "default", "", QStringList(), QList<constructor>(),
+               "TestClass", "default", "", QStringList(), {},
                {{"b", field("b", "int", "default", false)}},
-               {{"classMethod", method(
+               {{method(
                                     "classMethod", "void", false, false, "default", "classMethod()",
                                     {"{}"}, {}
                                     )}},
@@ -63,9 +63,9 @@ void testsplitclass::add_data() {
         << 0 << 23
         << QStringList({"public", "class", "TestClass", "{"})
         << class_info(
-               "TestClass", "Public", "", QStringList(), QList<constructor>(),
+               "TestClass", "Public", "", QStringList(), {},
                {{"b", field("b", "int", "default", false)}},
-               {{"classMethod", method(
+               {{method(
                                     "classMethod", "void", false, false, "default", "classMethod()",
                                     {}, {}
                                     )}},
@@ -87,7 +87,7 @@ QTest::newRow("private_class")
     << class_info(
         "TestClass", "Private", "", {}, {},
         {{"b", field("b", "int", "default", false)}},
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, false, false
     )
     << 3 << 1 << QSet<error>();
@@ -106,7 +106,7 @@ QTest::newRow("protected_class")
     << class_info(
         "TestClass", "Protected", "", {}, {},
         {{"b", field("b", "int", "default", false)}},
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, false, false
     )
     << 3 << 1 << QSet<error>();
@@ -125,7 +125,7 @@ QTest::newRow("single_interface")
     << class_info(
         "TestClass", "default", "", {"Test1"}, {},
         {{"b", field("b", "int", "default", false)}},
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, false, false
     )
     << 3 << 1 << QSet<error>();
@@ -144,7 +144,7 @@ QTest::newRow("multiple_interfaces")
     << class_info(
         "TestClass", "default", "", {"Test1", "Test2", "Test3"}, {},
         {{"b", field("b", "int", "default", false)}},
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, false, false
     )
     << 3 << 1 << QSet<error>();
@@ -163,7 +163,7 @@ QTest::newRow("parent_class")
     << class_info(
         "TestClass", "default", "parentClass", {}, {},
         {{"b", field("b", "int", "default", false)}},
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, false, false
     )
     << 3 << 1 << QSet<error>();
@@ -182,7 +182,7 @@ QTest::newRow("parent_and_interfaces")
     << class_info(
         "TestClass", "default", "parentClass", {"Test1", "Test2"}, {},
         {{"b", field("b", "int", "default", false)}},
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, false, false
     )
     << 3 << 1 << QSet<error>();
@@ -207,7 +207,7 @@ QTest::newRow("multiple_fields")
             {"nil", field("nil", "String", "default", false)},
             {"c", field("c", "float", "default", false)}
         },
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, false, false
     )
     << 5 << 1 << QSet<error>();
@@ -229,9 +229,9 @@ QTest::newRow("multiple_methods")
         "TestClass", "default", "", {}, {},
         {{"b", field("b", "int", "default", false)}},
         {
-            {"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {"{}"}, {})},
-            {"intTestMet1", method("intTestMet1", "int", false, false, "default", "intTestMet1()", {"{bool el = true;}"}, {})},
-            {"fTestMet2", method("fTestMet2", "float", false, false, "default", "fTestMet2()", {}, {})}
+            {method("classMethod", "void", false, false, "default", "classMethod()", {"{}"}, {})},
+            {method("intTestMet1", "int", false, false, "default", "intTestMet1()", {"{bool el = true;}"}, {})},
+            {method("fTestMet2", "float", false, false, "default", "fTestMet2()", {}, {})}
         },
         {}, {}, {}, false, false
     )
@@ -255,8 +255,8 @@ QTest::newRow("with_constructor")
         {constructor( "default", "TestClass(string)", {"{this.alo = men;}"}, {argument("men", "string")})},
         {{"b", field("b", "int", "default", false)}},
         {
-            {"intTestMet1", method("intTestMet1", "int", false, false, "default", "intTestMet1()", {"{}"}, {})},
-            {"fTestMet2", method("fTestMet2", "float", false, false, "default", "fTestMet2()", {"{}"}, {})}
+            {method("intTestMet1", "int", false, false, "default", "intTestMet1()", {"{}"}, {})},
+            {method("fTestMet2", "float", false, false, "default", "fTestMet2()", {"{}"}, {})}
         },
         {}, {}, {}, false, false
     )
@@ -276,7 +276,7 @@ QTest::newRow("static_class")
     << class_info(
         "TestClass", "default", "", {}, {},
         {{"b", field("b", "int", "default", false)}},
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, false, true
     )
     << 3 << 1 << QSet<error>();
@@ -295,7 +295,7 @@ QTest::newRow("abstract_class")
     << class_info(
         "TestClass", "default", "", {}, {},
         {{"b", field("b", "int", "default", false)}},
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, true, false
     )
     << 3 << 1 << QSet<error>();
@@ -314,7 +314,7 @@ QTest::newRow("public_static_class")
     << class_info(
         "TestClass", "Public", "", {}, {},
         {{"b", field("b", "int", "default", false)}},
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, false, true
     )
     << 3 << 1 << QSet<error>();
@@ -333,7 +333,7 @@ QTest::newRow("static_public_class")
     << class_info(
         "TestClass", "Public", "", {}, {},
         {{"b", field("b", "int", "default", false)}},
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, false, true
     )
     << 3 << 1 << QSet<error>();
@@ -352,7 +352,7 @@ QTest::newRow("public_static_abstract_class")
     << class_info(
         "TestClass", "Public", "", {}, {},
         {{"b", field("b", "int", "default", false)}},
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, true, true
     )
     << 3 << 1 << QSet<error>();
@@ -371,7 +371,7 @@ QTest::newRow("public_abstract_static_class")
     << class_info(
         "TestClass", "Public", "", {}, {},
         {{"b", field("b", "int", "default", false)}},
-        {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+        {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
         {}, {}, {}, true, true
     )
     << 3 << 1 << QSet<error>();
@@ -413,12 +413,12 @@ QTest::newRow("multiple_nested_classes")
     << 0 << 17
     << QStringList({"class", "TestClass", "{"})
     << class_info(
-           "TestClass", "default", "", QStringList(), QList<constructor>(),
+           "TestClass", "default", "", QStringList(), {},
            {{"b", field("b", "int", "default", false)}},
            {},
            {
                {"NestedClass", class_info("NestedClass", "default", "", {}, {}, {{"c", field("c", "char", "default", false)}}, {}, {}, {}, {}, false, false)},
-               {"nested1", class_info("nested1", "default", "", {}, {}, {}, {{"hell", method("hell", "void", false, false, "default", "hell()", {"{}"}, {})}}, {}, {}, {}, false, false)},
+               {"nested1", class_info("nested1", "default", "", {}, {}, {}, {{method("hell", "void", false, false, "default", "hell()", {"{}"}, {})}}, {}, {}, {}, false, false)},
                {"nested2", class_info("nested2", "default", "", {}, {}, {}, {}, {}, {}, {}, false, false)}
            },
            {}, {}, false, false
@@ -437,7 +437,7 @@ QTest::newRow("nested_interface")
     << 0 << 17
     << QStringList({"class", "TestClass", "{"})
     << class_info(
-           "TestClass", "default", "", QStringList(), QList<constructor>(),
+           "TestClass", "default", "", QStringList(), {},
            {{"b", field("b", "int", "default", false)}},
            {},
            {},
@@ -474,13 +474,13 @@ QTest::newRow("multiple_nested_interfaces")
     << 0 << 17
     << QStringList({"class", "TestClass", "{"})
     << class_info(
-           "TestClass", "default", "", QStringList(), QList<constructor>(),
+           "TestClass", "default", "", QStringList(), {},
            {{"b", field("b", "int", "default", false)}},
            {},
            {},
            {
                {"Nested", interface_info("Nested", "default", QStringList(), {{"c", field("c", "char", "default", false)}}, {}, {}, {}, QStringList())},
-               {"nested1", interface_info("nested1", "default", QStringList(), {}, {{"hell", method("hell", "void", false, false, "default", "hell()", {"{}"}, {})}}, {}, {}, QStringList())},
+               {"nested1", interface_info("nested1", "default", QStringList(), {}, {{method("hell", "void", false, false, "default", "hell()", {"{}"}, {})}}, {}, {}, QStringList())},
                {"nested2", interface_info("nested2", "default", QStringList(), {}, {}, {}, {}, QStringList())}
            },
            {}, false, false
@@ -503,14 +503,14 @@ QTest::newRow("nested_class_and_interface")
     << 0 << 17
     << QStringList({"class", "TestClass", "{"})
     << class_info(
-           "TestClass", "default", "", QStringList(), QList<constructor>(),
+           "TestClass", "default", "", QStringList(), {},
            {},
            {},
            {
                {"Nested", class_info("Nested", "default", "", {}, {}, {{"c", field("c", "char", "default", false)}}, {}, {}, {}, {}, false, false)}
            },
            {
-               {"nested1", interface_info("nested1", "default", QStringList(), {}, {{"hell", method("hell", "void", false, false, "default", "hell()", {"{}"}, {})}}, {}, {}, QStringList())},
+               {"nested1", interface_info("nested1", "default", QStringList(), {}, {{method("hell", "void", false, false, "default", "hell()", {"{}"}, {})}}, {}, {}, QStringList())},
                {"nested2", interface_info("nested2", "default", QStringList(), {}, {}, {}, {}, QStringList())}
            },
            {}, false, false
@@ -532,10 +532,10 @@ QTest::newRow("two_brace_pairs")
     << 0 << 17
     << QStringList({"class", "TestClass", "{"})
     << class_info(
-           "TestClass", "default", "", QStringList(), QList<constructor>(),
+           "TestClass", "default", "", QStringList(), {},
            {{"b", field("b", "int", "default", false)}},
-           {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})},
-            {"method2", method("method2", "void", false, false, "default", "method2()", {"{", "int c =12;", "}"}, {})}},
+           {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})},
+            {method("method2", "void", false, false, "default", "method2()", {"{", "int c =12;", "}"}, {})}},
            {}, {}, {}, false, false
        )
     << 6 << 1 << QSet<error>();
@@ -556,9 +556,9 @@ QTest::newRow("nested_braces")
     << 0 << 17
     << QStringList({"class", "TestClass", "{"})
     << class_info(
-           "TestClass", "default", "", QStringList(), QList<constructor>(),
+           "TestClass", "default", "", QStringList(), {},
            {{"b", field("b", "int", "default", false)}},
-           {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {"{","if(14 == 13){","int c =12;","if(12 == 12) { }", "}}"},{})}},
+           {{method("classMethod", "void", false, false, "default", "classMethod()", {"{","if(14 == 13){","int c =12;","if(12 == 12) { }", "}}"},{})}},
            {}, {}, {}, false, false
        )
     << 7 << 1 << QSet<error>();
@@ -575,9 +575,9 @@ QTest::newRow("braces_in_singleline_comment")
     << 0 << 17
     << QStringList({"class", "TestClass", "{"})
     << class_info(
-           "TestClass", "default", "", QStringList(), QList<constructor>(),
+           "TestClass", "default", "", QStringList(), {},
            {{"b", field("b", "int", "default", false)}},
-           {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+           {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
            {}, {}, {}, false, false
        )
     << 3 << 1 << QSet<error>();
@@ -596,9 +596,9 @@ QTest::newRow("braces_in_multiline_comment")
     << 0 << 17
     << QStringList({"class", "TestClass", "{"})
     << class_info(
-           "TestClass", "default", "", QStringList(), QList<constructor>(),
+           "TestClass", "default", "", QStringList(), {},
            {{"b", field("b", "int", "default", false)}},
-           {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+           {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
            {}, {}, {}, false, false
        )
     << 5 << 1 << QSet<error>();
@@ -615,9 +615,9 @@ QTest::newRow("braces_in_string_literal")
     << 0 << 17
     << QStringList({"class", "TestClass", "{"})
     << class_info(
-           "TestClass", "default", "", QStringList(), QList<constructor>(),
+           "TestClass", "default", "", QStringList(), {},
            {{"strochka", field("strochka", "String", "default", false)}},
-           {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+           {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
            {}, {}, {}, false, false
        )
     << 3 << 1 << QSet<error>();
@@ -634,9 +634,9 @@ QTest::newRow("braces_in_char_literal")
     << 0 << 17
     << QStringList({"class", "TestClass", "{"})
     << class_info(
-           "TestClass", "default", "", QStringList(), QList<constructor>(),
+           "TestClass", "default", "", QStringList(), {},
            {{"odin", field("odin", "char", "default", false)}},
-           {{"interfaceMethod", method("interfaceMethod", "void", false, false, "default", "interfaceMethod()", {}, {})}},
+           {{method("interfaceMethod", "void", false, false, "default", "interfaceMethod()", {}, {})}},
            {}, {}, {}, false, false
        )
     << 3 << 1 << QSet<error>();
@@ -652,9 +652,9 @@ QTest::newRow("unclosed_class_brace")
     << 0 << 17
     << QStringList({"class", "TestClass", "{"})
              << class_info(
-                    "TestClass", "default", "", QStringList(), QList<constructor>(),
+           "TestClass", "default", "", QStringList(), {},
                     {{"b", field("b", "int", "default", false)},{"fd", field("fd", "float", "default", false)} },
-                    {{"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
+                    {{method("classMethod", "void", false, false, "default", "classMethod()", {}, {})}},
                     {}, {}, {}, false, false
                 )
     << 4 << 0
@@ -676,9 +676,9 @@ QTest::newRow("overloaded_methods")
         "TestClass", "default", "", {}, {},
         {},
         {
-            {"classMethod", method("classMethod", "void", false, false, "default", "classMethod(int,float)", {}, {argument("l", "int"), argument("v", "float")})},
-            {"classMethod", method("classMethod", "void", false, false, "default", "classMethod(int,bool)", {}, {argument("l", "int"), argument("v", "bool")})},
-            {"classMethod", method("classMethod", "void", false, false, "default", "classMethod()", {"{}"}, {})}
+            {method("classMethod", "void", false, false, "default", "classMethod(int, float)", {}, {argument("l", "int"), argument("v", "float")})},
+            {method("classMethod", "void", false, false, "default", "classMethod(int, bool)", {}, {argument("l", "int"), argument("v", "bool")})},
+            {method("classMethod", "void", false, false, "default", "classMethod()", {"{}"}, {})}
         },
         {}, {}, {}, false, false
     )
@@ -732,7 +732,7 @@ QTest::newRow("simple_static_initializer")
     << 5 << 1 << QSet<error>();
 }
 
-void testsplitclass::add() {
+void testsplitclass::test_class() {
     QFETCH(QStringList, code);
     QFETCH(int, inputIndexString);
     QFETCH(int, inputIndexSimbol);
@@ -753,83 +753,6 @@ void testsplitclass::add() {
     QCOMPARE(actualIndexString, expectedIndexString);
     QCOMPARE(actualIndexSimbol, expectedIndexSimbol);
 
-    QMap<QString, field> actualFields = result.getFields();
-    QMap<QString, field> expectedFields = expectedClass.getFields();
-
-    QVERIFY2(actualFields.size() == expectedFields.size(),qPrintable(QString("\nКоличество полей: ожидалось (%1), получено (%2)\n").arg(expectedFields.size()).arg(actualFields.size())));
-
-    for (QMap<QString, field>::const_iterator it = expectedFields.constBegin();it != expectedFields.constEnd(); ++it) {
-        QString fieldName = it.key();
-        QVERIFY2(actualFields.contains(fieldName),qPrintable(QString("\nОтсутствует ожидаемое поле: %1\n").arg(fieldName)));
-
-        if (actualFields.contains(fieldName)) {
-            QVERIFY2(actualFields[fieldName] == it.value(),qPrintable(QString("\nПоле %1 не совпадает с ожидаемым\n").arg(fieldName)));
-        }
-    }
-
-    // Проверка методов
-    QMap<QString, method> actualMethods = result.getMethods();
-    QMap<QString, method> expectedMethods = expectedClass.getMethods();
-
-    QVERIFY2(actualMethods.size() == expectedMethods.size(),qPrintable(QString("\nКоличество методов: ожидалось (%1), получено (%2)\n").arg(expectedMethods.size()).arg(actualMethods.size())));
-
-    for (QMap<QString, method>::const_iterator it = expectedMethods.constBegin();it != expectedMethods.constEnd(); ++it) {
-        QString methodName = it.key();
-        QVERIFY2(actualMethods.contains(methodName),qPrintable(QString("\nОтсутствует ожидаемый метод: %1\n").arg(methodName)));
-
-        if (actualMethods.contains(methodName)) {
-            QVERIFY2(actualMethods[methodName] == it.value(),qPrintable(QString("\nМетод %1 не совпадает с ожидаемым\n").arg(methodName)));
-        }
-    }
-
-    // Проверка вложенных классов
-    QMap<QString, class_info> actualIncludesClasses = result.getIncludesClasses();
-    QMap<QString, class_info> expectedIncludesClasses = expectedClass.getIncludesClasses();
-
-    QVERIFY2(actualIncludesClasses.size() == expectedIncludesClasses.size(),qPrintable(QString("\nКоличество вложенных классов: ожидалось (%1), получено (%2)\n").arg(expectedIncludesClasses.size()).arg(actualIncludesClasses.size())));
-
-    for (QMap<QString, class_info>::const_iterator it = expectedIncludesClasses.constBegin();it != expectedIncludesClasses.constEnd(); ++it) {
-        QString className = it.key();
-        QVERIFY2(actualIncludesClasses.contains(className),qPrintable(QString("\nОтсутствует ожидаемый вложенный класс: %1\n").arg(className)));
-
-        if (actualIncludesClasses.contains(className)) {
-            QVERIFY2(actualIncludesClasses[className] == it.value(),qPrintable(QString("\nВложенный класс %1 не совпадает с ожидаемым\n").arg(className)));
-        }
-    }
-
-    // Проверка ошибок
-    if (actualErrors != expectedErrors) {
-        QStringList messages;
-
-        // Находим ошибки, которые есть в expected, но нет в actual
-        QSet<error> missingErrors = expectedErrors - actualErrors;
-        for (QSet<error>::const_iterator it = missingErrors.constBegin();it != missingErrors.constEnd(); ++it) {
-            const error& err = *it;
-            messages << QString("Отсутствует ожидаемая ошибка: %1 (строка %2, файл %3)").arg(int(err.typeMistake)).arg(err.numberStr).arg(err.fileNumber);
-        }
-
-        // Находим ошибки, которые есть в actual, но нет в expected
-        QSet<error> unexpectedErrors = actualErrors - expectedErrors;
-        for (QSet<error>::const_iterator it = unexpectedErrors.constBegin();it != unexpectedErrors.constEnd(); ++it) {
-            const error& err = *it;
-            messages << QString("Обнаружена неожиданная ошибка: %1 (строка %2, файл %3)").arg(int(err.typeMistake)).arg(err.numberStr).arg(err.fileNumber);
-        }
-
-        // Находим ошибки, которые есть в обоих наборах, но различаются по полям
-        QSet<error> commonErrors = actualErrors & expectedErrors;
-        for (QSet<error>::const_iterator it = commonErrors.constBegin();
-             it != commonErrors.constEnd(); ++it) {
-            const error& err = *it;
-            const error& expectedErr = *expectedErrors.constFind(err);
-            if (!(err == expectedErr)) {
-                QStringList diffFields;
-                if (err.typeMistake != expectedErr.typeMistake) diffFields << "тип ошибки";
-                if (err.fileNumber != expectedErr.fileNumber) diffFields << "номер файла";
-                if (err.numberStr != expectedErr.numberStr) diffFields << "номер строки";
-                messages << QString("Ошибка %1 отличается по полям: %2").arg(int(err.typeMistake)).arg(diffFields.join(", "));
-            }
-        }
-
-        QVERIFY2(false, qPrintable(QString("Наборы ошибок не совпадают:\n%1\nОжидалось %2 ошибок, получено %3 ошибок").arg(messages.join("\n")).arg(expectedErrors.size()).arg(actualErrors.size())));
-    }
+    verifyClass(result, expectedClass);
+    verifyErrors(actualErrors,expectedErrors);
 }
