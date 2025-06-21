@@ -99,3 +99,14 @@ bool interface_info::operator==(const interface_info& other) const {
            includeClass == other.includeClass &&
            import == other.import;
 }
+// Перегрузка оператора !=
+bool interface_info::operator!=(const interface_info& other) const {
+    return nameInterface != other.nameInterface &&
+           mod != other.mod &&
+           extends != other.extends &&
+           fields != other.fields &&
+           methods != other.methods &&
+           includeInterface != other.includeInterface &&
+           includeClass != other.includeClass &&
+           import != other.import;
+}
