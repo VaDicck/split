@@ -10,7 +10,7 @@ class testsplitimport : public QObject
 {
     Q_OBJECT
 private slots:
-    void add_data();
-    void add();
+    void test_split_import_data();
+    void test_split_import();
 };
 #endif // TESTSPLITIMPORT_H
