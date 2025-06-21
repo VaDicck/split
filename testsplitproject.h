@@ -10,11 +10,11 @@
 #include "interface_info.h"
 
 
-class testsplitproject : public QObject
+class testsplitproject : public testSplitBase
 {
     Q_OBJECT
 private slots:
-    void add_data();
-    void add();
+    void test_pack_data();
+    void test_pack();
 };
 #endif // TESTSPLITPROJECT_H
