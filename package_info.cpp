@@ -33,7 +33,17 @@ QMap<QString, class_info>& package_info::getIncludesClasses(){
 QMap<QString, interface_info>& package_info::getIncludesInterfaces(){
     return includesInterfaces;
 }
+const QMap<QString, class_info>& package_info::getIncludesClasses() const {
+    return includesClasses;
+}
 
+const QMap<QString, interface_info>& package_info::getIncludesInterfaces() const {
+    return includesInterfaces;
+}
+
+const QMap<QString, package_info>& package_info::getChildren() const {
+    return children;
+}
 // Сеттеры
 void package_info::setNamePackage(const QString& name) {
     namePackage = name;
@@ -71,6 +81,7 @@ bool package_info::operator==(const package_info& other) const {
            includesClasses == other.includesClasses &&
            includesInterfaces == other.includesInterfaces;
 }
+
 
 // Метод сравнения путей к пакетам
 QString package_info::compare(const package_info& other, const QString& parentPath) const {
