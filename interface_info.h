@@ -47,6 +47,8 @@ public:
 
     // Перегрузка оператора ==
     bool operator==(const interface_info& other) const;
+    // Перегрузка оператора !=
+    bool operator!=(const interface_info& other) const;
 
 private:
     QString nameInterface;
