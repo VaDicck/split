@@ -49,3 +49,10 @@ bool field::operator==(const field& other) const {
            mod == other.mod &&
            isStatic == other.isStatic;
 }
+
+bool field::operator!=(const field& other) const {
+    return nameField != other.nameField &&
+           type != other.type &&
+           mod != other.mod &&
+           isStatic != other.isStatic;
+}
