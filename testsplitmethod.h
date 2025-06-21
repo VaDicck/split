@@ -8,7 +8,6 @@
 #include "main.h"
 #include "error.h"
 
-
 class testsplitmethod : public testSplitBase
 {
     Q_OBJECT
