@@ -105,8 +105,11 @@ void testSplitField::test_field() {
     QFETCH(QStringList, fieldDeclaration);
     QFETCH(fieldMap, expectedResult);
 
+    // Вызов функции
     fieldMap actualResult = splitField(fieldDeclaration);
-    verifyMapField(actualResult, expectedResult);
+    // Проверка полей
+    QString msg = verifyMapField(actualResult, expectedResult);
+    QVERIFY2(msg.isEmpty(), qPrintable(msg));
 }
 
 
