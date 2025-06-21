@@ -31,10 +31,10 @@ public:
     bool operator==(const constructor& other) const;
     bool operator!=(const constructor& other) const;
 private:
-    QString mod;
-    QString filename;
-    QStringList code;
-    QVector<argument> arguments;
+    QString mod; // Модификатор доступа
+    QString filename; // Имя файла
+    QStringList code; // Код
+    QVector<argument> arguments; // Аргументы
 };
 
 
