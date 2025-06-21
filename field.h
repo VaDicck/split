@@ -1,6 +1,8 @@
 #ifndef FIELD_H
 #define FIELD_H
 #include <QString>
+#include <QHash>
+#include <QMap>
 
 class field {
 private:
@@ -28,6 +30,8 @@ public:
 
     // Оператор сравнения
     bool operator==(const field& other) const;
+    bool operator!=(const field& other) const;
 };
+
 
 #endif // FIELD_H
