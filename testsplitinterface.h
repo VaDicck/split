@@ -8,6 +8,7 @@
 #include "main.h"
 #include "class_info.h"
 
+
 class testsplitinterface : public testSplitBase
 {
     Q_OBJECT
