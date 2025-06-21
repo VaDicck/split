@@ -1,6 +1,6 @@
 #include "testsplitimport.h"
 
-void testsplitimport::add_data() {
+void testsplitimport::test_split_import_data() {
     QTest::addColumn<QStringList>("importDeclaration");
     QTest::addColumn<QString>("expectedResult");
 
@@ -19,7 +19,7 @@ void testsplitimport::add_data() {
             << QString("java");
 }
 
-void testsplitimport::add() {
+void testsplitimport::test_split_import() {
     QFETCH(QStringList, importDeclaration);
     QFETCH(QString, expectedResult);
 
