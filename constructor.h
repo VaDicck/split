@@ -38,6 +38,7 @@ private:
 };
 
 
+
 // Хеш-функция
 inline uint qHash(const constructor& key, uint seed = 0) noexcept
 {
