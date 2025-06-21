@@ -382,7 +382,8 @@ void testsplitmethod::test_method() {
 
     QCOMPARE(actualIndexString, expectedIndexString);
     QCOMPARE(actualIndexSimbol, expectedIndexSimbol);
-    verifyMethod(result, expectedMethod);
+    QString msg = verifyMethod(result, expectedMethod);
+    QVERIFY2(msg.isEmpty(), qPrintable(msg));
     verifyErrors(actualErrors, expectedErrors);
 }
 
