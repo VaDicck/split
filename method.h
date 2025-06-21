@@ -48,6 +48,7 @@ private:
     bool isStatic;
 };
 
+
 // Хеш-функция
 inline uint qHash(const method &m, uint seed = 0) {
     // Хеш родительского класса (constructor)
