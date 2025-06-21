@@ -5,14 +5,14 @@
 
 int main(int argc, char *argv[])
 {
-    /////////QTest::qExec(new testSkipConstant,argc,argv);
-    /////////QTest::qExec(new testSkipMultipleComment,argc,argv);
-    /////////QTest::qExec(new testFindLexemes,argc,argv);
-    /////////QTest::qExec(new testSplitField,argc,argv);
-    /////////QTest::qExec(new testsplitimport,argc,argv);
-    /////////QTest::qExec(new testsplitmethod,argc,argv);
-    //QTest::qExec(new testsplitpackage,argc,argv);
-    //QTest::qExec(new testsplitproject,argc,argv);
+    QTest::qExec(new testSkipConstant,argc,argv);
+    QTest::qExec(new testSkipMultipleComment,argc,argv);
+    QTest::qExec(new testFindLexemes,argc,argv);
+    QTest::qExec(new testSplitField,argc,argv);
+    QTest::qExec(new testsplitimport,argc,argv);
+    QTest::qExec(new testsplitmethod,argc,argv);
+    QTest::qExec(new testsplitpackage,argc,argv);
+    QTest::qExec(new testsplitproject,argc,argv);
     QTest::qExec(new testsplitclass,argc,argv);
     QTest::qExec(new testsplitinterface,argc,argv);
 }
@@ -703,61 +703,3 @@ bool readJavaFiles(const QStringList &pathJavaFile, QList<QStringList> &filesCod
 }
 
 
-// bool createDataFiles(const QString& outputDir,const package_info& packageInfo,QSet<error>& errors)
-// {
-//     // 1. Создаем структуру каталогов пакета
-//     QString packagePath = QDir(outputDir).filePath(packageInfo.getNamePackage().replace('.', QDir::separator()));
-//     QDir dir;
-//     if (!dir.mkpath(packagePath)) {
-//         errors.insert(error(typeMistakes::dirCreationError, 0, 0, 0, 0, 0, "", "", packagePath));
-//         return false;
-//     }
-
-//     // 2. Создаем файлы для классов
-//     const QMap<QString, class_info>& classes = packageInfo.getIncludesClasses();
-//     for (QMap<QString, class_info>::const_iterator it = classes.constBegin(); it != classes.constEnd(); ++it) {
-//         const class_info& classInfo = it.value();
-//         QString classDirPath = QDir(packagePath).filePath("class_" + classInfo.getNameClass());
-//         if (!createClassFiles(classDirPath, classInfo, errors)) {
-//             return false;
-//         }
-//     }
-
-//     // 3. Создаем файлы для интерфейсов
-//     const QMap<QString, interface_info>& interfaces = packageInfo.getIncludesInterfaces();
-//     for (QMap<QString, interface_info>::const_iterator it = interfaces.constBegin(); it != interfaces.constEnd(); ++it) {
-//         const interface_info& interfaceInfo = it.value();
-//         QString interfaceDirPath = QDir(packagePath).filePath("interface_" + interfaceInfo.getNameInterface());
-//         if (!createInterfaceFiles(interfaceDirPath, interfaceInfo, errors)) {
-//             return false;
-//         }
-//     }
-
-//     // 4. Обрабатываем вложенные пакеты
-//     const QMap<QString, package_info>& children = packageInfo.getChildren();
-//     for (QMap<QString, package_info>::const_iterator it = children.constBegin(); it != children.constEnd(); ++it) {
-//         const package_info& childPackage = it.value();
-//         if (!createDataFiles(outputDir, childPackage, errors)) {
-//             return false;
-//         }
-//     }
-
-//     // 5. Создаем файл imports.txt если есть импорты
-//     const QStringList& imports = packageInfo.getImports();
-//     if (!imports.isEmpty()) {
-//         QString importsFilePath = QDir(packagePath).filePath("imports.txt");
-//         QFile importsFile(importsFilePath);
-//         if (importsFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-//             QTextStream out(&importsFile);
-//             for (QStringList::const_iterator it = imports.constBegin(); it != imports.constEnd(); ++it) {
-//                 out << *it << "\n";
-//             }
-//             importsFile.close();
-//         } else {
-//             errors.insert(error(typeMistakes::fileCreationError, 0, 0, 0, 0, 0, "", "", importsFilePath));
-//             return false;
-//         }
-//     }
-
-//     return true;
-// }
