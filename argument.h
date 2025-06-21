@@ -29,7 +29,7 @@ inline uint qHash(const argument &arg, uint seed = 0) {
     return qHash(arg.getName(), seed) ^ qHash(arg.getType());
 }
 
-// QVector<argument>
+// Хеш функция для QVector<argument>
 inline uint qHash(const QVector<argument> &vec, uint seed = 0) {
     uint hash = seed;
     for (const argument &arg : vec) {
