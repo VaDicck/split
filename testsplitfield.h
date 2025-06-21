@@ -5,6 +5,7 @@
 #include "field.h"
 #include "testsplitbase.h"
 
+
 Q_DECLARE_METATYPE(field)
 typedef QMap<QString, field> fieldMap;
 Q_DECLARE_METATYPE(fieldMap)
