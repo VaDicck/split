@@ -11,8 +11,8 @@ class testFindLexemes : public QObject
 {
     Q_OBJECT
 private slots:
-    void add_data();
-    void add();
+    void test_find_lexemes_data();
+    void test_find_lexemes();
 };
 
 #endif // TESTFINDLEXEMES_H
