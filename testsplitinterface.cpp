@@ -389,7 +389,8 @@ void testsplitinterface::test_split() {
              qPrintable(QString("\nИндекс строки: ожидалось %1, получено %2").arg(expectedIndexString).arg(actualIndexString)));
     QVERIFY2(actualIndexSimbol == expectedIndexSimbol,
              qPrintable(QString("\nИндекс символа: ожидалось %1, получено %2").arg(expectedIndexSimbol).arg(actualIndexSimbol)));
-    verifyInterface(result, expectedInterface);
+    QString msg = verifyInterface(result, expectedInterface);
+    QVERIFY2(msg.isEmpty(), qPrintable(msg));
     verifyErrors(actualErrors, expectedErrors);
 }
 
