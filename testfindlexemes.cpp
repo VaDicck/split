@@ -2,7 +2,7 @@
 #include "main.h"
 
 
-void testFindLexemes::add_data(){
+void testFindLexemes::test_find_lexemes_data(){
     QTest::addColumn<QStringList>("code");
     QTest::addColumn<int>("indexCurrentString");
     QTest::addColumn<int>("indexCurrentSimbol");
@@ -213,7 +213,7 @@ void testFindLexemes::add_data(){
         << 0 << 21;
 }
 
-void testFindLexemes::add(){
+void testFindLexemes::test_find_lexemes(){
     QFETCH(QStringList, code);
     QFETCH(int, indexCurrentString);
     QFETCH(int, indexCurrentSimbol);
