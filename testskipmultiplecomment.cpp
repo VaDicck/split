@@ -1,6 +1,6 @@
 #include "testskipmultiplecomment.h"
 #include "main.h"
-void testSkipMultipleComment::add_data()
+void testSkipMultipleComment::test_skip_comm_data()
 {
     QTest::addColumn<QStringList>("code");
     QTest::addColumn<int>("indexString");
@@ -60,7 +60,7 @@ void testSkipMultipleComment::add_data()
         << 0 << 9 << 2 << 14 << true;
 }
 
-void testSkipMultipleComment::add()
+void testSkipMultipleComment::test_skip_comm()
 {
     QFETCH(QStringList, code);
     QFETCH(int, indexString);
