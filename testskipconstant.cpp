@@ -1,7 +1,7 @@
 #include "testskipconstant.h"
 #include "main.h"
 
-void testSkipConstant::add_data(){
+void testSkipConstant::test_skip_const_data(){
     QTest::addColumn<QString>("str");
     QTest::addColumn<int>("indexStart");
     QTest::addColumn<char>("simbol");
@@ -43,7 +43,7 @@ void testSkipConstant::add_data(){
     QTest::newRow("stringConstantIncludesSimbolConstant") << QString("char brac = '\"' ;") << 13 << '\'' << true << 15;
 }
 
-void testSkipConstant::add(){
+void testSkipConstant::test_skip_const(){
     QFETCH(QString, str);
     QFETCH(int, indexStart);
     QFETCH(char, simbol);
