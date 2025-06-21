@@ -20,6 +20,9 @@ public:
     QMap<QString, package_info>& getChildren();
     QMap<QString, class_info>& getIncludesClasses();
     QMap<QString, interface_info>& getIncludesInterfaces();
+    const QMap<QString, class_info>& getIncludesClasses() const;
+    const QMap<QString, interface_info>& getIncludesInterfaces() const;
+    const QMap<QString, package_info>& getChildren() const;
 
     // Сеттеры
     void setNamePackage(const QString& name);
@@ -36,6 +39,7 @@ public:
 
     // Перегрузка оператора ==
     bool operator==(const package_info& other) const;
+
 
     // Метод для сравнивания путей пакетов
     QString compare(const package_info& other, const QString& parentPath = "") const;
