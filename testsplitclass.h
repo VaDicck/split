@@ -1,6 +1,7 @@
 #ifndef TESTSPLITCLASS_H
 #define TESTSPLITCLASS_H
 
+
 #include <QObject>
 #include <QTest>
 #include "class_info.h"
