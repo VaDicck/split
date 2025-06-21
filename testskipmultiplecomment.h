@@ -8,8 +8,8 @@ class testSkipMultipleComment : public QObject
 {
     Q_OBJECT
 private slots:
-    void add_data();
-    void add();
+    void test_skip_comm_data();
+    void test_skip_comm();
 };
 
 #endif // TESTSKIPMULTIPLECOMMENT_H
