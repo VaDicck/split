@@ -750,9 +750,11 @@ void testsplitclass::test_class() {
     // Вызов функции
     class_info result = splitClass( code,actualIndexString,actualIndexSimbol,classDeclaration,actualErrors);
 
+    // Проверка индексов
     QCOMPARE(actualIndexString, expectedIndexString);
     QCOMPARE(actualIndexSimbol, expectedIndexSimbol);
 
-    verifyClass(result, expectedClass);
+    QString msg = verifyClass(result, expectedClass);
+    QVERIFY2(msg.isEmpty(), qPrintable(msg));
     verifyErrors(actualErrors,expectedErrors);
 }
