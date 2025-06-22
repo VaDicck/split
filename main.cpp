@@ -13,7 +13,8 @@ int main(int argc, char *argv[])
         readJavaFiles(javaFiles,code,errors);
         splitProject(code,rootPack,errors);
     }
-    printErrors(errors);
+    createDataFiles("D:/POLITEH/KinPo/splitNew/split/outputDir",rootPack,errors);
+        printErrors(errors);
 }
 
 //Пропустить константу
@@ -665,11 +666,7 @@ bool readPrjFile(const QString &pathFile, QStringList &pathJavaFile, QSet<error>
         errors.insert(error(typeMistakes::manyJavaFiles, 0, 0, pathJavaFile.size()));
         return false;
     }
-    // Если нет ошибок
-    if (errors.isEmpty()) {
-        return true;
-    }
-    return false;
+    return true;
 }
 
 // Прочитать Java файлы
@@ -794,4 +791,243 @@ void printErrors(const QSet<error>& errors) {
             break;
         }
     }
+}
+
+bool createDataFiles(const QString& outputDirPath,const package_info& currentPackage, QSet<error>& errors){
+    QFileInfo dirInfo(outputDirPath);
+
+    // Проверяем, существует ли директория
+    if (!dirInfo.exists() ||!dirInfo.isDir() ) {
+        errors.insert(error(typeMistakes::outputFileDoesNotExist,0, 0, 0, 0, 0, "", "", 0, 0, 0, outputDirPath));
+        return false;
+    }
+    //==================================Создадим классы========================
+    foreach(const class_info& currentClass, currentPackage.getIncludesClasses()){
+        createDataClass(outputDirPath, currentClass);
+    }
+    //=================================Создадим интерфейсы======================
+    foreach(const interface_info& currentInterface, currentPackage.getIncludesInterfaces()){
+        createDataInterface(outputDirPath, currentInterface);
+    }
+    //QDir(parentDir).mkdir(newDirName);
+    foreach(const package_info& currentPack, currentPackage.getChildren()){
+        QDir(outputDirPath).mkdir(currentPack.getNamePackage());
+        QString newDirPack = outputDirPath+"/"+currentPack.getNamePackage();
+        createDataFiles(newDirPack,currentPack, errors);
+    }
+    // // Проверяем права на запись
+    // QDir dir(outputDirPath);
+    // if (!dir.isReadable() || !dir.isWritable()) {
+    //     errors.insert(error(typeMistakes::filePermissionDenied,
+    //                         0, 0, 0, 0, 0, "", "", 0, 0, 0, outputDirPath));
+    //     return false;
+    // }
+
+}
+bool createDataClass(const QString& outputDirPath,const class_info& currentClass){
+    QDir(outputDirPath).mkdir("class_"+currentClass.getNameClass());
+    QString newDirPath = outputDirPath+"/"+"class_"+currentClass.getNameClass();
+    QFile file(newDirPath+"/"+currentClass.getNameClass()+".xml");
+
+    QXmlStreamWriter writer(&file);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    writer.setAutoFormatting(true);  // Читабельное форматирование
+    // Заголовок XML
+    writer.writeStartDocument();
+    generateXMLClass(writer, currentClass, newDirPath);
+    writer.writeEndDocument(); // Завершаем документ
+    file.close();
+    foreach(const class_info& nestedClass,currentClass.getIncludesClasses()){
+        createDataClass(newDirPath, nestedClass);
+    }
+    foreach(const interface_info& nestedInterface,currentClass.getIncludeInterface()){
+        createDataInterface(newDirPath, nestedInterface);
+    }
+    return true;
+}
+void generateXMLClass(QXmlStreamWriter& writer, const class_info& currentClass,const QString& newDirPath,int depth)
+{
+    // Форматирование отступа
+    writer.writeCharacters("\n" + QString(depth * 2, ' '));
+
+    // Открываем элемент класса
+    writer.writeStartElement("class");
+    writer.writeAttribute("name", currentClass.getNameClass());
+    writer.writeAttribute("access", currentClass.getMod());
+    writer.writeAttribute("extend", currentClass.getExtend());
+    writer.writeAttribute("implements", currentClass.getImplements().join(", "));
+    writer.writeAttribute("isStatic", currentClass.getIsStatic() ? "true" : "false");
+    writer.writeAttribute("isAbstract", currentClass.getIsAbstract() ? "true" : "false");
+    writer.writeAttribute("imports", currentClass.getImport().join("|"));
+    writer.writeAttribute("depth", QString::number(depth));
+
+    // Рекурсивно обрабатываем вложенные классы
+    foreach (const class_info& innerClass, currentClass.getIncludesClasses()) {
+        generateXMLClass(writer, innerClass, newDirPath, depth + 1);
+    }
+    // Рекурсивно обрабатываем вложенные интерфейсы
+    foreach (const interface_info& nestedInterface, currentClass.getIncludeInterface()) {
+        generateXMLInterface(writer, nestedInterface, newDirPath, depth + 1);
+    }
+
+    // Методы класса
+    foreach (const method& currentMethod, currentClass.getMethods()) {
+        writer.writeCharacters("\n" + QString((depth + 1) * 2, ' '));
+        writer.writeStartElement("method");
+        writer.writeAttribute("name", currentMethod.getNameMethod());
+        writer.writeAttribute("returnType", currentMethod.getReturnType());
+        writer.writeAttribute("access", currentMethod.getMod());
+        writer.writeAttribute("isStatic", currentMethod.getIsStatic() ? "true" : "false");
+        writer.writeAttribute("isAbstract", currentMethod.getIsAbstract() ? "true" : "false");
+        // Аргументы метода
+        foreach (const argument& currentArgument, currentMethod.getArguments()) {
+            writer.writeStartElement("argument");
+            writer.writeAttribute("name", currentArgument.getName());
+            writer.writeAttribute("type", currentArgument.getType());
+            writer.writeEndElement(); // </argument>
+        }
+        // Создаем .txt файл с кодом метода если на нулевой глубине
+        if(depth==0){
+            QString methodFilePath = newDirPath + "/" + currentMethod.getFilename() + ".txt";
+            QFile methodFile(methodFilePath);
+            if (methodFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream out(&methodFile);
+                for (const QString& line : currentMethod.getCode()) {
+                    out << line << "\n";
+                }
+                methodFile.close();
+            }
+        }
+        writer.writeEndElement(); // </method>
+    }
+
+    // Конструкторы
+    foreach (const constructor& currentConstructor, currentClass.getConstructors()) {
+        writer.writeCharacters("\n" + QString((depth + 1) * 2, ' '));
+        writer.writeStartElement("constructor");
+        writer.writeAttribute("name", currentClass.getNameClass());
+        writer.writeAttribute("access", currentConstructor.getMod());
+        // Аргументы конструктора
+        foreach (const argument& currentArgument, currentConstructor.getArguments()) {
+            writer.writeStartElement("argument");
+            writer.writeAttribute("name", currentArgument.getName());
+            writer.writeAttribute("type", currentArgument.getType());
+            writer.writeEndElement(); // </argument>
+        }
+        // Создаем .txt файл с кодом конструктора если на нулевой глубине
+        if(depth==0){
+            QString methodFilePath = newDirPath + "/" + currentConstructor.getFilename() + ".txt";
+            QFile methodFile(methodFilePath);
+            if (methodFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream out(&methodFile);
+                for (const QString& line : currentConstructor.getCode()) {
+                    out << line << "\n";
+                }
+                methodFile.close();
+            }
+        }
+        writer.writeEndElement(); // </constructor>
+    }
+
+    // Поля класса
+    foreach (const field& currentField, currentClass.getFields()) {
+        writer.writeCharacters("\n" + QString((depth + 1) * 2, ' '));
+        writer.writeStartElement("field");
+        writer.writeAttribute("name", currentField.getNameField());
+        writer.writeAttribute("type", currentField.getType());
+        writer.writeAttribute("access", currentField.getMod());
+        writer.writeAttribute("isStatic", currentField.getIsStatic()? "true" : "false");
+        writer.writeEndElement(); // </field>
+    }
+
+    // Закрываем элемент класса
+    writer.writeCharacters("\n" + QString(depth * 2, ' '));
+    writer.writeEndElement(); // </class>
+}
+bool createDataInterface(const QString& outputDirPath,const interface_info& currentInterface){
+    QDir(outputDirPath).mkdir("interface_"+currentInterface.getNameInterface());
+    QString newDirPath = outputDirPath+"/"+"interface_"+currentInterface.getNameInterface();
+    QFile file(newDirPath+"/"+currentInterface.getNameInterface()+".xml");
+
+    QXmlStreamWriter writer(&file);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    writer.setAutoFormatting(true);  // Читабельное форматирование
+    // Заголовок XML
+    writer.writeStartDocument();
+    generateXMLInterface(writer, currentInterface, newDirPath);
+    writer.writeEndDocument(); // Завершаем документ
+    file.close();
+    foreach(const interface_info& nestedInterface,currentInterface.getIncludeInterface()){
+        createDataInterface(newDirPath, nestedInterface);
+    }
+    foreach(const class_info& nestedClass, currentInterface.getIncludeClass()){
+        createDataClass(newDirPath, nestedClass);
+    }
+    return true;
+}
+void generateXMLInterface(QXmlStreamWriter& writer, const interface_info& currentInterface,const QString& newDirPath,int depth)
+{
+    // Форматирование отступа
+    writer.writeCharacters("\n" + QString(depth * 2, ' '));
+
+    // Открываем элемент интерфейса
+    writer.writeStartElement("interface");
+    writer.writeAttribute("name", currentInterface.getNameInterface());
+    writer.writeAttribute("access", currentInterface.getMod());
+    writer.writeAttribute("extends", currentInterface.getExtends().join(", "));
+    writer.writeAttribute("imports", currentInterface.getImport().join("|"));
+    writer.writeAttribute("depth", QString::number(depth));
+
+    // Рекурсивно обрабатываем вложенные интерфейсы
+    foreach (const interface_info& nestedInterface, currentInterface.getIncludeInterface()) {
+        generateXMLInterface(writer, nestedInterface, newDirPath, depth + 1);
+    }
+    // Рекурсивно обрабатываем вложенные классы
+    foreach (const class_info& innerClass, currentInterface.getIncludeClass()) {
+        generateXMLClass(writer, innerClass, newDirPath, depth + 1);
+    }
+
+    // Методы интерфейса
+    foreach (const method& currentMethod, currentInterface.getMethods()) {
+        writer.writeCharacters("\n" + QString((depth + 1) * 2, ' '));
+        writer.writeStartElement("method");
+        writer.writeAttribute("name", currentMethod.getNameMethod());
+        writer.writeAttribute("returnType", currentMethod.getReturnType());
+        writer.writeAttribute("access", currentMethod.getMod());
+        writer.writeAttribute("isStatic", currentMethod.getIsStatic() ? "true" : "false");
+        // Аргументы метода
+        foreach (const argument& currentArgument, currentMethod.getArguments()) {
+            writer.writeStartElement("argument");
+            writer.writeAttribute("name", currentArgument.getName());
+            writer.writeAttribute("type", currentArgument.getType());
+            writer.writeEndElement(); // </argument>
+        }
+        // Создаем .txt файл с кодом метода если на нулевой глубине
+        if(depth==0){
+            QString methodFilePath = newDirPath + "/" + currentMethod.getFilename() + ".txt";
+            QFile methodFile(methodFilePath);
+            if (methodFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream out(&methodFile);
+                for (const QString& line : currentMethod.getCode()) {
+                    out << line << "\n";
+                }
+                methodFile.close();
+            }
+        }
+        writer.writeEndElement(); // </method>
+    }
+
+    // Поля интерфейса
+    foreach (const field& currentField, currentInterface.getFields()) {
+        writer.writeCharacters("\n" + QString((depth + 1) * 2, ' '));
+        writer.writeStartElement("field");
+        writer.writeAttribute("name", currentField.getNameField());
+        writer.writeAttribute("type", currentField.getType());
+        writer.writeAttribute("access", currentField.getMod());
+        writer.writeEndElement(); // </field>
+    }
+
+    // Закрываем элемент класса
+    writer.writeCharacters("\n" + QString(depth * 2, ' '));
+    writer.writeEndElement(); // </class>
 }
