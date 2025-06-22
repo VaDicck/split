@@ -48,6 +48,8 @@ void splitProject(const QList<QStringList> &project, package_info &rootPack, QSe
 bool readPrjFile(const QString &pathFile, QStringList &pathJavaFile, QSet<error> &errors);
 // Прочитать Java файл
 bool readJavaFiles(const QStringList &pathJavaFiles, QList<QStringList> &filesCode, QSet<error> &errors) ;
+// Вывод ошибок
+void printErrors(const QSet<error>& errors);
 // Создать выходные данные
 
 #endif // MAIN_H
