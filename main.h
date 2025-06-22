@@ -9,6 +9,9 @@
 #include "testsplitmethod.h"
 #include "testsplitclass.h"
 #include "testsplitimport.h"
+#include "testsplitpackage.h"
+#include "testsplitproject.h"
+#include "testsplitinterface.h"
 #include "package_info.h"
 #include "class_info.h"
 #include "method.h"
@@ -42,9 +45,9 @@ QMap<QString, field> splitField(const QStringList &declarationField);
 // Разбить проект
 void splitProject(const QList<QStringList> &project, package_info &rootPack, QSet<error> &errors);
 // Прочитать проджект файл
-bool readPrjFile(const QString &pathFile, QStringList &pathJavaFile, QList<error> &errors);
+bool readPrjFile(const QString &pathFile, QStringList &pathJavaFile, QSet<error> &errors);
 // Прочитать Java файл
-bool readJavaFiles(const QStringList &pathJavaFile, QList<QStringList> &filesCode, QList<error> &errors);
+bool readJavaFiles(const QStringList &pathJavaFiles, QList<QStringList> &filesCode, QSet<error> &errors) ;
 // Создать выходные данные
 
 #endif // MAIN_H
