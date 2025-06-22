@@ -5,16 +5,14 @@
 
 int main(int argc, char *argv[])
 {
-    QTest::qExec(new testSkipConstant,argc,argv);
-    QTest::qExec(new testSkipMultipleComment,argc,argv);
-    QTest::qExec(new testFindLexemes,argc,argv);
-    QTest::qExec(new testSplitField,argc,argv);
-    QTest::qExec(new testsplitimport,argc,argv);
-    QTest::qExec(new testsplitmethod,argc,argv);
-    QTest::qExec(new testsplitpackage,argc,argv);
-    QTest::qExec(new testsplitproject,argc,argv);
-    QTest::qExec(new testsplitclass,argc,argv);
-    QTest::qExec(new testsplitinterface,argc,argv);
+    QSet<error> errors;
+    QStringList javaFiles;
+    QList<QStringList> code;
+    package_info rootPack("root");
+    if(readPrjFile("D:/POLITEH/KinPo/splitNew/split/pathJava.prj", javaFiles, errors)){
+        readJavaFiles(javaFiles,code,errors);
+        splitProject(code,rootPack,errors);
+    }
 }
 
 //Пропустить константу
@@ -624,12 +622,12 @@ void splitProject(const QList<QStringList> &project, package_info &rootPack, QSe
 }
 
 // Прочитать prj файл
-bool readPrjFile(const QString &pathFile, QStringList &pathJavaFile, QList<error> &errors) {
+bool readPrjFile(const QString &pathFile, QStringList &pathJavaFile, QSet<error> &errors) {
     // Открываем файл
     QFile file(pathFile);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         // Добавляем ошибку, если не удалось открыть файл
-        errors.append(error(typeMistakes::inputFileDoesNotExist));
+        errors.insert(error(typeMistakes::inputFileDoesNotExist));
         return false;
     }
 
@@ -647,7 +645,7 @@ bool readPrjFile(const QString &pathFile, QStringList &pathJavaFile, QList<error
                 isEmptyFile = false; // Файл не пуст, так как нашли непустую строку
             } else {
                 // Добавляем ошибку, если файл не существует
-                errors.append(error(typeMistakes::inputJavaFileDoesNotExist, 0,  0,  0, 0,  0,  "", "",  0,  0, 0, line));
+                errors.insert(error(typeMistakes::inputJavaFileDoesNotExist, 0,  0,  0, 0,  0,  "", "",  0,  0, 0, line));
             }
         }
     }
@@ -656,14 +654,14 @@ bool readPrjFile(const QString &pathFile, QStringList &pathJavaFile, QList<error
 
     // Проверяем, был ли файл пустым
     if (isEmptyFile) {
-        errors.append(error(typeMistakes::inputFileEmpty));
+        errors.insert(error(typeMistakes::inputFileEmpty));
         return false;
     }
     file.close();
     // Проверяем количество файлов
     const int MAX_FILES = 30;
     if (pathJavaFile.size() > MAX_FILES) {
-        errors.append(error(typeMistakes::manyJavaFiles, 0, 0, pathJavaFile.size()));
+        errors.insert(error(typeMistakes::manyJavaFiles, 0, 0, pathJavaFile.size()));
         return false;
     }
     // Если нет ошибок
@@ -674,19 +672,10 @@ bool readPrjFile(const QString &pathFile, QStringList &pathJavaFile, QList<error
 }
 
 // Прочитать Java файлы
-bool readJavaFiles(const QStringList &pathJavaFile, QList<QStringList> &filesCode, QList<error> &errors){
-    // Очищаем контейнер
-    filesCode.clear();
-
+bool readJavaFiles(const QStringList &pathJavaFile, QList<QStringList> &filesCode, QSet<error> &errors){
     // Для каждого пути к Java файлу
     for (const QString &filePath : pathJavaFile) {
         QFile file(filePath);
-        // Если файл не читается
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            // Считать файл, имеющий такой путь неверным
-            errors.append(error(typeMistakes::inputJavaFileDoesNotExist, 0,  0,  0, 0,  0,  "", "",  0,  0, 0, filePath));
-        }
-
         // Копируем данные из файла
         QTextStream in(&file);
         QStringList fileLines;
@@ -694,12 +683,14 @@ bool readJavaFiles(const QStringList &pathJavaFile, QList<QStringList> &filesCod
         while (!in.atEnd()) {
             fileLines.append(in.readLine());
         }
-
-        filesCode.append(fileLines);
+        if(fileLines.size()>10000){
+            errors.insert(error(typeMistakes::manyStrokes, 0, fileLines.size(), 0, 0, 0, "", "", 0, 0,0, filePath));
+        }
+        else{
+            filesCode.append(fileLines);
+        }
         file.close();
     }
 
     return filesCode.size() == 0;
 }
-
-
