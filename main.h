@@ -22,6 +22,7 @@
 #include <QTextStream>
 #include <QFileInfo>
 #include <QDir>
+#include <QXmlStreamWriter>
 
 
 //Пропустить константу
@@ -51,5 +52,10 @@ bool readJavaFiles(const QStringList &pathJavaFiles, QList<QStringList> &filesCo
 // Вывод ошибок
 void printErrors(const QSet<error>& errors);
 // Создать выходные данные
-
+bool createDataFiles(const QString& outputDirPath,const package_info& currentPackage, QSet<error>& errors);
+// Вспомогательные рекурсивные функциии для создания данных о классе и интерфейсе
+bool createDataInterface(const QString& outputDirPath,const interface_info& currentInterface);
+bool createDataClass(const QString& outputDirPath,const class_info& currentClass);
+void generateXMLClass(QXmlStreamWriter& writer, const class_info& currentClass,const QString& newDirPath,int depth = 0);
+void generateXMLInterface(QXmlStreamWriter& writer, const interface_info& currentInterface,const QString& newDirPath,int depth = 0);
 #endif // MAIN_H
