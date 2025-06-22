@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
         readJavaFiles(javaFiles,code,errors);
         splitProject(code,rootPack,errors);
     }
+    printErrors(errors);
 }
 
 //Пропустить константу
@@ -679,7 +680,7 @@ bool readJavaFiles(const QStringList &pathJavaFile, QList<QStringList> &filesCod
         // Копируем данные из файла
         QTextStream in(&file);
         QStringList fileLines;
-
+        file.open(QIODevice::ReadOnly | QIODevice::Text);
         while (!in.atEnd()) {
             fileLines.append(in.readLine());
         }
@@ -693,4 +694,104 @@ bool readJavaFiles(const QStringList &pathJavaFile, QList<QStringList> &filesCod
     }
 
     return filesCode.size() == 0;
+}
+
+void printErrors(const QSet<error>& errors) {
+    for (const error& err : errors) {
+        switch (err.getTypeMistake()) {
+        case typeMistakes::inputFileDoesNotExist:
+            qDebug() << "Неверно указан файл с входными данными. Возможно, файл не существует.";
+            break;
+
+        case typeMistakes::inputJavaFileDoesNotExist:
+            qDebug() << "Указанный Java файл не существует:"
+                     << err.getPathJavaFile();
+            break;
+
+        case typeMistakes::manyStrokes:
+            qDebug() << "Превышено допустимое количество строк в" << err.getFileNumber()
+                     << "файле. Максимально возможное количество строк 10000. Сейчас"
+                     << err.getCountStrFile();
+            break;
+
+        case typeMistakes::inputFileEmpty:
+            qDebug() <<"Неверно указан файл с входными данными. Данный файл пуст.";
+            break;
+
+        case typeMistakes::outputFileDoesNotExist:
+            qDebug() << "Неверно указан каталог с выходными данными. Возможно, каталога не существует.";
+            break;
+
+        case typeMistakes::manyJavaFiles:
+            qDebug() << "Количество путей к файлам .java превышает допустимое. Максимальное количество 30. Сейчас"
+                     << err.getCountJavaFile();
+            break;
+
+        case typeMistakes::fileWithoutPackage:
+            qDebug() << "Явно не указан пакет в" << err.getFileNumber()
+                     << "файле.\n В каждом файле пакет должен быть явно указан.";
+            break;
+
+        case typeMistakes::manyClassesInFile:
+            qDebug() << "Превышено количество классов в" << err.getFileNumber()
+                     << "файле.\n Максимально допустимое количество 15. Сейчас"
+                     << err.getCountClasses();
+            break;
+
+        case typeMistakes::manyInterfacesInFile:
+            qDebug() << "Превышено количество интерфейсов в" << err.getFileNumber()
+                     << "файле. Максимально допустимое количество 15. Сейчас"
+                     << err.getCountInterfaces();
+            break;
+
+        case typeMistakes::manyMethodInClass:
+            qDebug() << "Превышено количество методов класса в" << err.getFileNumber()
+                     << "файле в" << err.getNameClass() << "классе. Максимально допустимое методов 25. Сейчас"
+                     << err.getCountMethod();
+            break;
+
+        case typeMistakes::manyMethodInInterface:
+            qDebug() << "Превышено количество методов интерфейса в" << err.getFileNumber()
+                     << "файле в" << err.getNameInterface() << "интерфейсе. Максимально допустимое количество методов 25. Сейчас"
+                     << err.getCountMethod();
+            break;
+
+        case typeMistakes::manyFieldInClass:
+            qDebug() << "Превышено количество полей класса в" << err.getFileNumber()
+                     << "файле в" << err.getNameClass() << "классе. Максимально допустимое количество полей 25. Сейчас"
+                     << err.getCountField();
+            break;
+
+        case typeMistakes::manyFieldInInterface:
+            qDebug() << "Превышено количество полей интерфейса в" << err.getFileNumber()
+                     << "файле в" << err.getNameInterface() << "интерфейсе. Максимально допустимое количество полей 25. Сейчас"
+                     << err.getCountField();
+            break;
+
+        case typeMistakes::noClosingFiguredScoop:
+            qDebug() << "Код синтаксически не верен. Отсутствует закрывающая фигурная скобка в"
+                     << err.getFileNumber() << "файле c" << err.getNumberStr() << "строки.";
+            break;
+
+        case typeMistakes::noOpenningFiguredScoop:
+            qDebug() << "Код синтаксически не верен. Отсутствует открывающая фигурная скобка в"
+                     << err.getFileNumber() << "файле перед" << err.getNumberStr() << "строкой.";
+            break;
+
+        case typeMistakes::notClosedComment:
+            qDebug() << "Код синтаксически не верен. Многострочный комментарий не закрыт в"
+                     << err.getFileNumber() << "файле с" << err.getNumberStr() << "строки.";
+            break;
+
+        case typeMistakes::notClosedSingleQuotes:
+            qDebug() << "Код синтаксически не верен. Не закрыты одинарные кавычки в"
+                     << err.getFileNumber() << "файле с" << err.getNumberStr() << "строки.";
+            break;
+
+        case typeMistakes::notClosedDoubleQuotes:
+            qDebug() << "Код синтаксически не верен. Не закрыты двойные кавычки в"
+                     << err.getFileNumber() << "файле с" << err.getNumberStr() << "строки.";
+            break;
+        }
+    }
 }
