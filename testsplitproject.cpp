@@ -7,6 +7,10 @@ void testsplitproject::test_pack_data() {
     QTest::addColumn<QSet<error>>("expectedErrors");
 
     // Тест 1: Простой файл
+    /*!
+     * \test Тест 1: Простой файл
+     * Проверяет разбор проекта с одним файлом, содержащим класс
+     */
     QTest::newRow("single_file")
         << QList<QStringList>({
                {"package com.example;",
@@ -35,6 +39,10 @@ void testsplitproject::test_pack_data() {
         << QSet<error>{}; // expectedErrors
 
     // Тест 2: Класс и интерфейс, и новый импорт
+    /*!
+     * \test Тест 2: Класс и интерфейс, и новый импорт
+     * Проверяет разбор проекта с классом, интерфейсом и дополнительным импортом
+     */
     QTest::newRow("class_and_interface_and_new_import")
         << QList<QStringList>({
                {"package com.example;",
@@ -57,6 +65,10 @@ void testsplitproject::test_pack_data() {
         << QSet<error>{};
 
     // Тест 3: Смена текущего пакета
+    /*!
+     * \test Тест 3: Смена текущего пакета
+     * Проверяет обработку смены пакета в середине файла
+     */
     QTest::newRow("package_switch_in_file")
         << QList<QStringList>({
                {"package com.example;",
@@ -110,6 +122,10 @@ void testsplitproject::test_pack_data() {
                                         )}})}}, QMap<QString, class_info>(), QMap<QString, interface_info>())} }, QMap<QString, class_info>(), QMap<QString, interface_info>())
         << QSet<error>{}; // expectedErrors
     // Тест 4: Несколько файлов
+    /*!
+     * \test Тест 4: Несколько файлов
+     * Проверяет обработку нескольких файлов с разными пакетами
+     */
     QTest::newRow("multiple_files_complex")
         << QList<QStringList>({
                // Файл 1
