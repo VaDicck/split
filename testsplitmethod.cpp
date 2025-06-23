@@ -11,64 +11,58 @@ void testsplitmethod::test_method_data() {
     QTest::addColumn<int>("expectedIndexSimbol");
     QTest::addColumn<QSet<error>>("expectedErrors");
 
-    // Тест 1: Объявление метода без реализации
+    /*!
+     * \test Тест 1: Объявление метода без реализации
+     * Проверяет разбор объявления метода без тела
+     */
     QTest::newRow("method_declaration_only")
         << QStringList({"public class test {", "void  functionA(int lego);", "int c =14; }"})
         << 1 << 26
         << "test"
         << QStringList({"void", "functionA", "(", "int", "lego", ")", ";"})
         << method(
-               "functionA",     // nameMethod
-               "void",          // returnType
-               false,           // isAbstract
-               false,           // isStatic
-               "default",       // mod
-               "functionA(int)",// filename
-               QStringList(),   // code (пустой)
-               {argument("lego", "int")} // arguments (name, type)
+               "functionA", "void", false, false, "default", "functionA(int)",
+               QStringList(), {argument("lego", "int")}
                )
         << 1 << 26
         << QSet<error>();
 
-    // Тест 2: Многострочная реализация
+    /*!
+     * \test Тест 2: Многострочная реализация
+     * Проверяет разбор метода с многострочной реализацией
+     */
     QTest::newRow("multiline_implementation")
         << QStringList({"public class test {", "void  functionA(int lego){", "int c =14; char f = 'a';", "}}"})
         << 1 << 26
         << "test"
         << QStringList({"void", "functionA", "(", "int", "lego", ")", "{"})
         << method(
-               "functionA",
-               "void",
-               false,
-               false,
-               "default",
-               "functionA(int)",
-               QStringList({"{","int c =14; char f = 'a';", "}"}),
-               {argument("lego", "int")}
+               "functionA", "void", false, false, "default", "functionA(int)",
+               QStringList({"{","int c =14; char f = 'a';", "}"}), {argument("lego", "int")}
                )
         << 3 << 1
         << QSet<error>();
 
-    // Тест 3: Однострочная реализация
+    /*!
+     * \test Тест 3: Однострочная реализация
+     * Проверяет разбор метода с однострочной реализацией
+     */
     QTest::newRow("singleline_implementation")
         << QStringList({"public class test {", "void  functionA(int lego){       int c =14; char f = 'a';}"})
         << 1 << 26
         << "test"
         << QStringList({"void", "functionA", "(", "int", "lego", ")", "{"})
         << method(
-               "functionA",
-               "void",
-               false,
-               false,
-               "default",
-               "functionA(int)",
-               QStringList({"{       int c =14; char f = 'a';}"}),
-               {argument("lego", "int")}
+               "functionA", "void", false, false, "default", "functionA(int)",
+               QStringList({"{       int c =14; char f = 'a';}"}), {argument("lego", "int")}
                )
         << 1 << 58
         << QSet<error>();
 
-    // Тест 4: } в символьной константе
+    /*!
+     * \test Тест 4: } в символьной константе
+     * Проверяет игнорирование } в символьной константе
+     */
     QTest::newRow("closing_brace_in_char")
         << QStringList({"public class test {", "void functionA(int lego){", "int c =14; char f = '}';", "}}"})
         << 1 << 25 << "test"
@@ -79,7 +73,10 @@ void testsplitmethod::test_method_data() {
                )
         << 3 << 1 << QSet<error>();
 
-    // Тест 5: } в строковой константе
+    /*!
+     * \test Тест 5: } в строковой константе
+     * Проверяет игнорирование } в строковой константе
+     */
     QTest::newRow("closing_brace_in_string")
         << QStringList({"public class test {", "void functionA(int lego){", "int c; string f = \" ll }\";", "}}"})
         << 1 << 25 << "test"
@@ -90,7 +87,10 @@ void testsplitmethod::test_method_data() {
                )
         << 3 << 1 << QSet<error>();
 
-    // Тест 6: } в многострочном комментарии
+    /*!
+     * \test Тест 6: } в многострочном комментарии
+     * Проверяет игнорирование } в многострочном комментарии
+     */
     QTest::newRow("closing_brace_in_multiline_comment")
         << QStringList({"public class test {", "void functionA(int lego){", "int c =14; /*char f =\"}\";*/", "}}"})
         << 1 << 25 << "test"
@@ -101,7 +101,10 @@ void testsplitmethod::test_method_data() {
                )
         << 3 << 1 << QSet<error>();
 
-    // Тест 7: } в однострочном комментарии
+    /*!
+     * \test Тест 7: } в однострочном комментарии
+     * Проверяет игнорирование } в однострочном комментарии
+     */
     QTest::newRow("closing_brace_in_line_comment")
         << QStringList({"public class test {", "void functionA(int lego){", "int c =14; //}", "}}"})
         << 1 << 25 << "test"
@@ -112,7 +115,10 @@ void testsplitmethod::test_method_data() {
                )
         << 3 << 1 << QSet<error>();
 
-    // Тест 8: Метод с несколькими аргументами
+    /*!
+     * \test Тест 8: Метод с несколькими аргументами
+     * Проверяет разбор метода с несколькими параметрами
+     */
     QTest::newRow("multiple_arguments")
         << QStringList({"public class test {", "void functionA(int lego, String cel, char vat);", "int c =14; }"})
         << 1 << 49 << "test"
@@ -124,7 +130,10 @@ void testsplitmethod::test_method_data() {
                )
         << 1 << 49 << QSet<error>();
 
-    // Тест 9: Абстрактный метод
+    /*!
+     * \test Тест 9: Абстрактный метод
+     * Проверяет разбор абстрактного метода
+     */
     QTest::newRow("abstract_method")
         << QStringList({"public class test {", "abstract void functionA(int lego);", "int c =14;", "}"})
         << 1 << 35 << "test"
@@ -135,7 +144,10 @@ void testsplitmethod::test_method_data() {
                )
         << 1 << 35 << QSet<error>();
 
-    // Тест 10: Статический метод
+    /*!
+     * \test Тест 10: Статический метод
+     * Проверяет разбор статического метода
+     */
     QTest::newRow("static_method")
         << QStringList({"public class test {", "static void functionA(int lego);", "int c =14; }"})
         << 1 << 33 << "test"
@@ -146,7 +158,10 @@ void testsplitmethod::test_method_data() {
                )
         << 1 << 33 << QSet<error>();
 
-    // Тест 11: Абстрактный публичный метод
+    /*!
+     * \test Тест 11: Абстрактный публичный метод
+     * Проверяет разбор абстрактного публичного метода
+     */
     QTest::newRow("abstract_public_method")
         << QStringList({"public class test {", "abstract public void functionA(int lego);", "int c =14; }"})
         << 1 << 42 << "test"
@@ -157,7 +172,10 @@ void testsplitmethod::test_method_data() {
                )
         << 1 << 42 << QSet<error>();
 
-    // Тест 12: Абстрактный приватный метод
+    /*!
+     * \test Тест 12: Абстрактный приватный метод
+     * Проверяет разбор абстрактного приватного метода
+     */
     QTest::newRow("abstract_private_method")
         << QStringList({"public class test {", "abstract private void functionA(int lego);", "int c =14; }"})
         << 1 << 43 << "test"
@@ -168,7 +186,10 @@ void testsplitmethod::test_method_data() {
                )
         << 1 << 43 << QSet<error>();
 
-    // Тест 13: Абстрактный защищенный метод
+    /*!
+     * \test Тест 13: Абстрактный защищенный метод
+     * Проверяет разбор абстрактного защищенного метода
+     */
     QTest::newRow("abstract_protected_method")
         << QStringList({"public class test {", "abstract protected void functionA(int lego);", "int c =14; }"})
         << 1 << 45 << "test"
@@ -179,7 +200,10 @@ void testsplitmethod::test_method_data() {
                )
         << 1 << 45 << QSet<error>();
 
-    // Тест 14: Конструктор
+    /*!
+     * \test Тест 14: Конструктор
+     * Проверяет разбор конструктора класса
+     */
     QTest::newRow("constructor_method")
         << QStringList({"public class test {", "test(int lego){", "this.name = lego;", "}}"})
         << 1 << 15 << "test"
@@ -190,7 +214,10 @@ void testsplitmethod::test_method_data() {
                )
         << 3 << 1 << QSet<error>();
 
-    // Тест 15: Публичный конструктор
+    /*!
+     * \test Тест 15: Публичный конструктор
+     * Проверяет разбор публичного конструктора
+     */
     QTest::newRow("public_constructor")
         << QStringList({"public class test {", "public test(int lego){", "this.name = lego;", "}}"})
         << 1 << 22 << "test"
@@ -201,7 +228,10 @@ void testsplitmethod::test_method_data() {
                )
         << 3 << 1 << QSet<error>();
 
-    // Тест 16: Приватный конструктор
+    /*!
+     * \test Тест 16: Приватный конструктор
+     * Проверяет разбор приватного конструктора
+     */
     QTest::newRow("private_constructor")
         << QStringList({"public class test {", "private test(int lego){", "this.name = lego;", "}}"})
         << 1 << 23 << "test"
@@ -212,7 +242,10 @@ void testsplitmethod::test_method_data() {
                )
         << 3 << 1 << QSet<error>();
 
-    // Тест 17: Защищенный конструктор
+    /*!
+     * \test Тест 17: Защищенный конструктор
+     * Проверяет разбор защищенного конструктора
+     */
     QTest::newRow("protected_constructor")
         << QStringList({"public class test {", "protected test(int lego){", "this.name = lego;", "}}"})
         << 1 << 25 << "test"
@@ -223,7 +256,10 @@ void testsplitmethod::test_method_data() {
                )
         << 3 << 1 << QSet<error>();
 
-    // Тест 18: Возвращаемое значение - контейнер
+    /*!
+     * \test Тест 18: Возвращаемое значение - контейнер
+     * Проверяет разбор метода с контейнерным типом возвращаемого значения
+     */
     QTest::newRow("container_return_type")
         << QStringList({"public class test {", "Map<int, float> functionA(int lego){", "int c =14; char f = 'a';", "return Map;", "}}"})
         << 1 << 36 << "test"
@@ -234,7 +270,10 @@ void testsplitmethod::test_method_data() {
                )
         << 4 << 1 << QSet<error>();
 
-    // Тест 19: Нестандартное возвращаемое значение
+    /*!
+     * \test Тест 19: Нестандартное возвращаемое значение
+     * Проверяет разбор метода с пользовательским типом возвращаемого значения
+     */
     QTest::newRow("custom_return_type")
         << QStringList({"public class test {", "classF funcB(int lego);", "int c =14;", "}"})
         << 1 << 23 << "test"
@@ -245,7 +284,10 @@ void testsplitmethod::test_method_data() {
                )
         << 1 << 23 << QSet<error>();
 
-    // Тест 20: Метод без аргументов
+    /*!
+     * \test Тест 20: Метод без аргументов
+     * Проверяет разбор метода без параметров
+     */
     QTest::newRow("no_arguments_method")
         << QStringList({"public class test {", "int funcB();", "int c =14;", "}"})
         << 1 << 12 << "test"
@@ -256,7 +298,10 @@ void testsplitmethod::test_method_data() {
                )
         << 1 << 12 << QSet<error>();
 
-    //Тест 21: Контейнер в аргументах
+    /*!
+     * \test Тест 21: Контейнер в аргументах
+     * Проверяет разбор метода с контейнерным типом параметра
+     */
     QTest::newRow("container_argument")
         << QStringList({"public class test {", "void functionA(Map<int, float> lego){", "int c =14; char f = 'a';", "}}"})
         << 1 << 37 << "test"
@@ -267,7 +312,10 @@ void testsplitmethod::test_method_data() {
                )
         << 3 << 1 << QSet<error>();
 
-    // Тест 22: Две пары фигурных скобок
+    /*!
+     * \test Тест 22: Две пары фигурных скобок
+     * Проверяет обработку вложенных фигурных скобок
+     */
     QTest::newRow("nested_braces")
         << QStringList({"public class test {", "void functionA(int lego){", "int c =14; char f = 'a';", "if(c==6) {", "int s =4; }", "}}"})
         << 1 << 25 << "test"
@@ -278,7 +326,10 @@ void testsplitmethod::test_method_data() {
                )
         << 5 << 1 << QSet<error>();
 
-    // Тест 23: Вложенность фигурных скобок
+    /*!
+     * \test Тест 23: Вложенность фигурных скобок
+     * Проверяет обработку глубоко вложенных фигурных скобок
+     */
     QTest::newRow("deeply_nested_braces")
         << QStringList({"public class test {", "void functionA(int lego){", "int c =14; char f = 'a';", "if(c==6) {", "if(c == 14) {", "bool f = true;", "}", "int s =4;", "}", "}}"})
         << 1 << 25 << "test"
@@ -289,7 +340,10 @@ void testsplitmethod::test_method_data() {
                )
         << 9 << 1 << QSet<error>();
 
-    // Тест 24: Не закрыт многострочный комментарий
+    /*!
+     * \test Тест 24: Не закрыт многострочный комментарий
+     * Проверяет обработку незакрытого многострочного комментария
+     */
     QTest::newRow("unclosed_multiline_comment")
         << QStringList({"public class test {", "void functionA(int lego){", "/* int c =14; char f = 'a';", "}}"})
         << 1 << 25 << "test"
@@ -300,7 +354,10 @@ void testsplitmethod::test_method_data() {
                )
         << 3 << 1 << QSet<error>({error(typeMistakes::notClosedComment, 0,0,0,0,0,0,0,0,0,2)});
 
-    // Тест 25: Не закрыта символьная константа
+    /*!
+     * \test Тест 25: Не закрыта символьная константа
+     * Проверяет обработку незакрытой символьной константы
+     */
     QTest::newRow("unclosed_char_constant")
         << QStringList({"public class test {", "void functionA(int lego){", "int c =14; char f = 'a;", "}}"})
         << 1 << 25 << "test"
@@ -311,7 +368,10 @@ void testsplitmethod::test_method_data() {
                )
         << 3 << 1 << QSet<error>({error(typeMistakes::notClosedSingleQuotes, 0,0,0,0,0,0,0,0,0,2)});
 
-    // Тест 26: Не закрыта строковая константа
+    /*!
+     * \test Тест 26: Не закрыта строковая константа
+     * Проверяет обработку незакрытой строковой константы
+     */
     QTest::newRow("unclosed_string_constant")
         << QStringList({"public class test {", "void functionA(int lego){", "string f = \"aloo;", "}}"})
         << 1 << 25 << "test"
@@ -322,7 +382,10 @@ void testsplitmethod::test_method_data() {
                )
         << 3 << 1 << QSet<error>({error(typeMistakes::notClosedDoubleQuotes, 0,0,0,0,0,0,0,0,0,2)});
 
-    // Тест 27: Нет закрывающей фигурной скобки
+    /*!
+     * \test Тест 27: Нет закрывающей фигурной скобки
+     * Проверяет обработку отсутствия закрывающей фигурной скобки
+     */
     QTest::newRow("unclosed_brace")
         << QStringList({"public class test {", "void functionA(int lego){", "int c =14; char f = 'a';"})
         << 1 << 26 << "test"
@@ -333,7 +396,10 @@ void testsplitmethod::test_method_data() {
                )
         << 1 << 26 << QSet<error>({error(typeMistakes::noClosingFiguredScoop, 0,0,0,0,0,0,0,0,0,1)});
 
-    // Тест 28: Комплексная вложенность скобок
+    /*!
+     * \test Тест 28: Комплексная вложенность скобок
+     * Проверяет обработку сложной вложенности фигурных скобок
+     */
     QTest::newRow("complex_brace_nesting")
         << QStringList({"public class test {", "void functionA(int lego){", "int c =14; char f = 'a';", "if(c==14){", "if(c>5){/*{{*/}", "bool c = 1;}", "String str = \"{vloj}\";", "}}"})
         << 1 << 25 << "test"
@@ -344,7 +410,10 @@ void testsplitmethod::test_method_data() {
                )
         << 7 << 1 << QSet<error>();
 
-    // Тест 29: Статический конструктор
+    /*!
+     * \test Тест 29: Статический конструктор
+     * Проверяет разбор статического блока инициализации
+     */
     QTest::newRow("simple_static_initializer")
         << QStringList({
                "class SimpleClass {",
@@ -358,8 +427,6 @@ void testsplitmethod::test_method_data() {
         << QStringList({"static", "{"})
         << method("default", "static",QStringList({"{", "count = 10;", "}"}),{})
         << 4 << 1 << QSet<error>();
-
-
 }
 
 void testsplitmethod::test_method() {
@@ -377,7 +444,6 @@ void testsplitmethod::test_method() {
     int actualIndexSimbol = inputIndexSimbol;
     QSet<error> actualErrors;
 
-    // Вызов
     method result = splitMethod(code, actualIndexString, actualIndexSimbol, nameClass, methodDeclaration, actualErrors);
 
     QCOMPARE(actualIndexString, expectedIndexString);
@@ -386,5 +452,3 @@ void testsplitmethod::test_method() {
     QVERIFY2(msg.isEmpty(), qPrintable(msg));
     verifyErrors(actualErrors, expectedErrors);
 }
-
-
