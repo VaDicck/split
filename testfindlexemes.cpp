@@ -1,18 +1,23 @@
 #include "testfindlexemes.h"
 #include "main.h"
 
+void testFindLexemes::test_find_lexemes_data()
+{
+    QTest::addColumn<QStringList>("code");               ///< Исходный код для анализа
+    QTest::addColumn<int>("indexCurrentString");         ///< Начальный индекс строки
+    QTest::addColumn<int>("indexCurrentSimbol");         ///< Начальная позиция в строке
+    QTest::addColumn<QStringList>("neededLexemes");      ///< Искомые лексемы
+    QTest::addColumn<QStringList>("needSimbols");        ///< Искомые символы
+    QTest::addColumn<QStringList>("endLexems");          ///< Завершающие лексемы
+    QTest::addColumn<StringPair>("expectedResult");      ///< Ожидаемый результат (найденная лексема и список лексем)
+    QTest::addColumn<int>("expectedIndexString");        ///< Ожидаемый индекс строки после поиска
+    QTest::addColumn<int>("expectedIndexSimbol");        ///< Ожидаемая позиция в строке после поиска
 
-void testFindLexemes::test_find_lexemes_data(){
-    QTest::addColumn<QStringList>("code");
-    QTest::addColumn<int>("indexCurrentString");
-    QTest::addColumn<int>("indexCurrentSimbol");
-    QTest::addColumn<QStringList>("neededLexemes");
-    QTest::addColumn<QStringList>("needSimbols");
-    QTest::addColumn<QStringList>("endLexems");
-    QTest::addColumn<QPair<QString, QStringList>>("expectedResult");
-    QTest::addColumn<int>("expectedIndexString");
-    QTest::addColumn<int>("expectedIndexSimbol");
     // Тест 1: Базовый тест
+    /*!
+     * \test Тест 1: Базовый тест
+     * Проверяет базовый случай поиска лексем с простым кодом
+     */
     QTest::newRow("base")
         << QStringList({"int x = 5;", "String s = \"test\";"})
         << 0 << 0
@@ -23,6 +28,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 10;
 
     // Тест 2: Нет нужных лексем
+    /*!
+     * \test Тест 2: Отсутствие искомых лексем
+     * Проверяет поведение при пустом списке искомых лексем
+     */
     QTest::newRow("no_needed_lexemes")
         << QStringList({"int x = 5;", "String s = \"test\";"})
         << 0 << 0
@@ -33,6 +42,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 10;
 
     // Тест 3: Нет нужных символов
+    /*!
+     * \test Тест 3: Отсутствие искомых символов
+     * Проверяет поведение при пустом списке искомых символов
+     */
     QTest::newRow("no_needed_symbols")
         << QStringList({"int x = 5;", "String s = \"test\";"})
         << 0 << 0
@@ -43,6 +56,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 10;
 
     // Тест 4: Нет завершающих лексем
+    /*!
+     * \test Тест 4: Отсутствие завершающих лексем
+     * Проверяет поведение при пустом списке завершающих лексем
+     */
     QTest::newRow("no_end_lexemes")
         << QStringList({"int x = 5;", "String s = \"test\";"})
         << 0 << 0
@@ -53,6 +70,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 2 << 0;
 
     // Тест 5: В коде нет нужных лексем
+    /*!
+     * \test Тест 5: Отсутствие совпадений с искомыми лексемами
+     * Проверяет случай, когда в коде нет ни одной искомой лексемы
+     */
     QTest::newRow("no_matching_lexemes")
         << QStringList({"x = 5;", "s = \"test\";"})
         << 0 << 0
@@ -63,6 +84,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 6;
 
     // Тест 6: Несколько нужных символов
+    /*!
+     * \test Тест 6: Множественные искомые символы
+     * Проверяет обработку нескольких искомых символов
+     */
     QTest::newRow("multiple_need_symbols")
         << QStringList({"int x = 5+7-3;", "String s = \"test\";"})
         << 0 << 0
@@ -73,6 +98,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 14;
 
     // Тест 7: Несколько завершающих лексем
+    /*!
+     * \test Тест 7: Множественные завершающие лексемы
+     * Проверяет обработку нескольких завершающих лексем
+     */
     QTest::newRow("multiple_end_lexemes")
         << QStringList({"int x = 5;;", "String s = \"potato\";"})
         << 0 << 0
@@ -83,6 +112,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 10;
 
     // Тест 8: Одинаковые лексемы в нужных и завершающих
+    /*!
+     * \test Тест 8: Пересечение искомых и завершающих лексем
+     * Проверяет обработку случая, когда лексемы есть в обоих списках
+     */
     QTest::newRow("same_lexemes_in_both")
         << QStringList({"chips= 5;", "String s = \"test\";"})
         << 0 << 0
@@ -93,6 +126,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 5;
 
     // Тест 9: Нужная лексема в однострочном комментарии
+    /*!
+     * \test Тест 9: Лексема в однострочном комментарии
+     * Проверяет игнорирование лексем в однострочных комментариях
+     */
     QTest::newRow("lexeme_in_line_comment")
         << QStringList({"x = 5//int x = 5;", "String s = \"test\";"})
         << 0 << 0
@@ -103,6 +140,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 1 << 18;
 
     // Тест 10: Нужная лексема в многострочном комментарии
+    /*!
+     * \test Тест 10: Лексема в многострочном комментарии
+     * Проверяет игнорирование лексем в многострочных комментариях
+     */
     QTest::newRow("lexeme_in_multiline_comment")
         << QStringList({"/*int x = 5;", "zachet u = 7+0;", "menya v = 8-1;", "karmane ura = 6+1;*/", "String s = \"test\";int x ;"})
         << 0 << 0
@@ -113,6 +154,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 4 << 18;
 
     // Тест 11: Нужная лексема в символьной константе
+    /*!
+     * \test Тест 11: Лексема в символьной константе
+     * Проверяет игнорирование лексем в символьных константах
+     */
     QTest::newRow("lexeme_in_char")
         << QStringList({"char x = 'k';", "String s = \"test\";"})
         << 0 << 0
@@ -123,6 +168,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 13;
 
     // Тест 12: Нужная лексема в строковой константе
+    /*!
+     * \test Тест 12: Лексема в строковой константе
+     * Проверяет игнорирование лексем в строковых константах
+     */
     QTest::newRow("lexeme_in_string")
         << QStringList({"String hello = \"bool you\";", "String s = \"test\";"})
         << 0 << 0
@@ -133,6 +182,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 26;
 
     // Тест 13: Поиск с середины кода
+    /*!
+     * \test Тест 13: Поиск с середины кода
+     * Проверяет корректность поиска при старте не с начала кода
+     */
     QTest::newRow("search_from_middle")
         << QStringList({"int x = 5;", "String s = \"test\";"})
         << 1 << 3
@@ -143,6 +196,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 1 << 18;
 
     // Тест 14: Множественные пробелы в коде
+    /*!
+     * \test Тест 14: Множественные пробелы
+     * Проверяет обработку кода с избыточными пробелами
+     */
     QTest::newRow("multiple_spaces")
         << QStringList({"     int    x    = 5;", "String s = \"test\";"})
         << 0 << 0
@@ -153,6 +210,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 21;
 
     // Тест 15: Лексемы через перевод строки в коде
+    /*!
+     * \test Тест 15: Лексемы на разных строках
+     * Проверяет обработку лексем, разделенных переводами строк
+     */
     QTest::newRow("newlines_in_code")
         << QStringList({"int", "x", "=", "5", ";", "String s = \"test\";"})
         << 0 << 0
@@ -163,6 +224,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 4 << 1;
 
     // Тест 16: Несколько нужных лексем в коде
+    /*!
+     * \test Тест 16: Несколько совпадений с искомыми лексемами
+     * Проверяет обработку случая, когда в коде встречается несколько искомых лексем
+     */
     QTest::newRow("multiple_matching_lexemes")
         << QStringList({"int xel = last;", "String s = \"test\";"})
         << 0 << 0
@@ -173,6 +238,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 15;
 
     // Тест 17: Нужная лексема является символом
+    /*!
+     * \test Тест 17: Искомая лексема - символ
+     * Проверяет случай, когда искомая лексема совпадает с символом
+     */
     QTest::newRow("lexeme_is_symbol")
         << QStringList({"int x = 5;", "String s = \"test\";"})
         << 0 << 0
@@ -183,6 +252,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 10;
 
     // Тест 18: Завершающая лексема является словом
+    /*!
+     * \test Тест 18: Завершающая лексема - слово
+     * Проверяет случай, когда завершающая лексема является словом
+     */
     QTest::newRow("end_lexeme_is_word")
         << QStringList({"int x = 5;", "String s = \"test\";"})
         << 0 << 0
@@ -193,6 +266,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 1 << 6;
 
     // Тест 19: Лексемы с нижним подчеркиванием
+    /*!
+     * \test Тест 19: Лексемы с подчеркиванием
+     * Проверяет обработку идентификаторов с подчеркиванием
+     */
     QTest::newRow("underscore_lexemes")
         << QStringList({"int_eger x_x = 5;", "String s = \"test\";"})
         << 0 << 0
@@ -203,6 +280,10 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 17;
 
     // Тест 20: Лексемы с цифрами
+    /*!
+     * \test Тест 20: Лексемы с цифрами
+     * Проверяет обработку идентификаторов, содержащих цифры
+     */
     QTest::newRow("lexemes_with_digits")
         << QStringList({"int x34 = 5, b32fd53;", "String s = \"test\";"})
         << 0 << 0
@@ -213,7 +294,8 @@ void testFindLexemes::test_find_lexemes_data(){
         << 0 << 21;
 }
 
-void testFindLexemes::test_find_lexemes(){
+void testFindLexemes::test_find_lexemes()
+{
     QFETCH(QStringList, code);
     QFETCH(int, indexCurrentString);
     QFETCH(int, indexCurrentSimbol);
@@ -227,20 +309,20 @@ void testFindLexemes::test_find_lexemes(){
     int actualIndexString = indexCurrentString;
     int actualIndexSimbol = indexCurrentSimbol;
 
-    StringPair actualResult = findLexemes(code,actualIndexString,actualIndexSimbol,
-neededLexemes, needSimbols, endLexems);
+    StringPair actualResult = findLexemes(code, actualIndexString, actualIndexSimbol,
+                                          neededLexemes, needSimbols, endLexems);
 
     // Проверка результатов
     QCOMPARE(actualResult.first, expectedResult.first);
     if (actualResult.second.size() != expectedResult.second.size()) {
         QVERIFY2(false, qPrintable(QString("\nРазное количество лексем: ожидалось (%1) {%2}, получено (%3) {%4}")
-        .arg(expectedResult.second.size()).arg(expectedResult.second.join(" "))
-        .arg(actualResult.second.size()).arg(actualResult.second.join(" "))));
+                                       .arg(expectedResult.second.size()).arg(expectedResult.second.join(" "))
+                                       .arg(actualResult.second.size()).arg(actualResult.second.join(" "))));
     } else {
         for (int i = 0; i < actualResult.second.size(); ++i) {
             if (actualResult.second[i] != expectedResult.second[i]) {
                 QVERIFY2(false, qPrintable(QString("\nНесовпадение лексемы на позиции %1:\tОжидалось: \"%2\"\tПолучено: \"%3\"")
-                .arg(i).arg(expectedResult.second[i]).arg(actualResult.second[i])));
+                                               .arg(i).arg(expectedResult.second[i]).arg(actualResult.second[i])));
             }
         }
     }
