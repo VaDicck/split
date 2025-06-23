@@ -7,8 +7,8 @@
  * - Модификаторы (abstract, static)
  * - Тело метода и аргументы
  * - Наследование от constructor
- *\file interface_info.cpp
- *\brief Реализация методов класса interface_info
+ *\file method.cpp
+ *\brief Реализация методов класса method
  */
 
 #ifndef METHOD_H
