@@ -12,6 +12,10 @@ void testsplitclass::test_class_data() {
     QTest::addColumn<int>("expectedIndexSimbol");
     QTest::addColumn<QSet<error>>("expectedErrors");
     // Тест 1: Класс с методом и полем
+    /*!
+     * \test Тест 1: Класс с методом и полем
+     * Проверяет обработку простого класса с одним методом и одним полем
+     */
     QTest::newRow("class_with_method_and_field")
         << QStringList({
                "class TestClass {",
@@ -36,6 +40,10 @@ void testsplitclass::test_class_data() {
         << 5 << 1 << QSet<error>();
 
     // Тест 2: Класс в одной строке (фигурные скобки метода в одной строке)
+    /*!
+     * \test Тест 2: Класс в одной строке
+     * Проверяет обработку класса, объявленного в одной строке
+     */
     QTest::newRow("single_line_class")
         << QStringList({"  class TestClass {void classMethod(){};int b;}float fd;"})
         << 0 << 19
@@ -52,6 +60,10 @@ void testsplitclass::test_class_data() {
         << 0 << 47 << QSet<error>();
 
     // Тест 3: Публичный класс (метод без реализации - без скобок)
+    /*!
+     * \test Тест 3: Публичный класс
+     * Проверяет обработку класса с модификатором доступа public
+     */
     QTest::newRow("public_class")
         << QStringList({
                "public class TestClass {",
@@ -74,6 +86,10 @@ void testsplitclass::test_class_data() {
         << 3 << 1 << QSet<error>();
 
     // Тест 4: Приватный класс
+    /*!
+     * \test Тест 4: Приватный класс
+     * Проверяет обработку класса с модификатором доступа private
+     */
 QTest::newRow("private_class")
     << QStringList({
         "private class TestClass {",
@@ -93,6 +109,10 @@ QTest::newRow("private_class")
     << 3 << 1 << QSet<error>();
 
 // Тест 5: Защищенный класс
+    /*!
+     * \test Тест 5: Защищенный класс
+     * Проверяет обработку класса с модификатором доступа protected
+     */
 QTest::newRow("protected_class")
     << QStringList({
         "protected class TestClass {",
@@ -112,6 +132,10 @@ QTest::newRow("protected_class")
     << 3 << 1 << QSet<error>();
 
 // Тест 6: Один интерфейс
+/*!
+     * \test Тест 6: Один интерфейс
+     * Проверяет обработку класса, реализующего один интерфейс
+     */
 QTest::newRow("single_interface")
     << QStringList({
         "class TestClass implements Test1{",
@@ -131,6 +155,10 @@ QTest::newRow("single_interface")
     << 3 << 1 << QSet<error>();
 
 // Тест 7: Несколько интерфейсов
+/*!
+     * \test Тест 7: Несколько интерфейсов
+     * Проверяет обработку класса, реализующего несколько интерфейсов
+     */
 QTest::newRow("multiple_interfaces")
     << QStringList({
         "class TestClass implements Test1,Test2,Test3{",
@@ -150,6 +178,10 @@ QTest::newRow("multiple_interfaces")
     << 3 << 1 << QSet<error>();
 
 // Тест 8: Родительский класс
+/*!
+     * \test Тест 8: Родительский класс
+     * Проверяет обработку класса с родительским классом
+     */
 QTest::newRow("parent_class")
     << QStringList({
         "class TestClass extends parentClass{",
@@ -169,6 +201,10 @@ QTest::newRow("parent_class")
     << 3 << 1 << QSet<error>();
 
 // Тест 9: Родитель и интерфейсы
+/*!
+     * \test Тест 9: Родитель и интерфейсы
+     * Проверяет обработку класса с родительским классом и интерфейсами
+     */
 QTest::newRow("parent_and_interfaces")
     << QStringList({
         "class TestClass extends parentClass implements Test1, Test2{",
@@ -188,6 +224,10 @@ QTest::newRow("parent_and_interfaces")
     << 3 << 1 << QSet<error>();
 
 // Тест 10: Несколько полей
+/*!
+     * \test Тест 10: Несколько полей
+     * Проверяет обработку класса с несколькими полями
+     */
 QTest::newRow("multiple_fields")
     << QStringList({
         "class TestClass {",
@@ -213,6 +253,10 @@ QTest::newRow("multiple_fields")
     << 5 << 1 << QSet<error>();
 
 // Тест 11: Несколько методов
+/*!
+     * \test Тест 11: Несколько методов
+     * Проверяет обработку класса с несколькими методами
+     */
 QTest::newRow("multiple_methods")
     << QStringList({
         "class TestClass {",
@@ -238,6 +282,10 @@ QTest::newRow("multiple_methods")
     << 5 << 1 << QSet<error>();
 
 // Тест 12: Конструктор
+/*!
+     * \test Тест 12: Конструктор
+     * Проверяет обработку класса с конструктором
+     */
 QTest::newRow("with_constructor")
     << QStringList({
         "class TestClass {",
@@ -263,6 +311,10 @@ QTest::newRow("with_constructor")
     << 5 << 1 << QSet<error>();
 
 // Тест 13: Статический класс
+/*!
+     * \test Тест 13: Статический класс
+     * Проверяет обработку класса с модификатором static
+     */
 QTest::newRow("static_class")
     << QStringList({
         "static class TestClass {",
@@ -282,6 +334,10 @@ QTest::newRow("static_class")
     << 3 << 1 << QSet<error>();
 
 // Тест 14: Абстрактный класс
+/*!
+     * \test Тест 14: Абстрактный класс
+     * Проверяет обработку класса с модификатором abstract
+     */
 QTest::newRow("abstract_class")
     << QStringList({
         "abstract class TestClass {",
@@ -301,6 +357,10 @@ QTest::newRow("abstract_class")
     << 3 << 1 << QSet<error>();
 
 // Тест 15: Публичный статический класс
+/*!
+     * \test Тест 15: Публичный статический класс
+     * Проверяет обработку класса с модификаторами public и static
+     */
 QTest::newRow("public_static_class")
     << QStringList({
         "public static class TestClass {",
@@ -320,6 +380,10 @@ QTest::newRow("public_static_class")
     << 3 << 1 << QSet<error>();
 
 // Тест 16: Статический публичный класс (порядок модификаторов)
+/*!
+     * \test Тест 16: Статический публичный класс
+     * Проверяет обработку класса с модификаторами static и public (разный порядок)
+     */
 QTest::newRow("static_public_class")
     << QStringList({
         "static public class TestClass {",
@@ -339,6 +403,10 @@ QTest::newRow("static_public_class")
     << 3 << 1 << QSet<error>();
 
 // Тест 17: Публичный статический абстрактный класс
+/*!
+     * \test Тест 17: Публичный статический абстрактный класс
+     * Проверяет обработку класса с модификаторами public, static и abstract
+     */
 QTest::newRow("public_static_abstract_class")
     << QStringList({
         "public static abstract class TestClass {",
@@ -358,6 +426,10 @@ QTest::newRow("public_static_abstract_class")
     << 3 << 1 << QSet<error>();
 
 // Тест 18: Публичный абстрактный статический класс (разный порядок)
+/*!
+     * \test Тест 18: Публичный абстрактный статический класс
+     * Проверяет обработку класса с модификаторами public, abstract и static (разный порядок)
+     */
 QTest::newRow("public_abstract_static_class")
     << QStringList({
         "public abstract static class TestClass {",
@@ -377,6 +449,10 @@ QTest::newRow("public_abstract_static_class")
     << 3 << 1 << QSet<error>();
 
 // Тест 19: Вложенный класс
+/*!
+     * \test Тест 19: Вложенный класс
+     * Проверяет обработку класса с одним вложенным классом
+     */
 QTest::newRow("nested_class")
     << QStringList({
         "class TestClass {",
@@ -397,6 +473,10 @@ QTest::newRow("nested_class")
     << 3 << 1 << QSet<error>();
 
 // Тест 20: Несколько вложенных классов
+/*!
+     * \test Тест 20: Несколько вложенных классов
+     * Проверяет обработку класса с несколькими вложенными классами
+     */
 QTest::newRow("multiple_nested_classes")
     << QStringList({
            "class TestClass {",
@@ -426,6 +506,10 @@ QTest::newRow("multiple_nested_classes")
     << 8 << 1 << QSet<error>();
 
 // Тест 21: Вложенный интерфейс
+/*!
+     * \test Тест 21: Вложенный интерфейс
+     * Проверяет обработку класса с вложенным интерфейсом
+     */
 QTest::newRow("nested_interface")
     << QStringList({
            "class TestClass {",
@@ -458,6 +542,10 @@ QTest::newRow("nested_interface")
     << 3 << 1 << QSet<error>();
 
 // Тест 22: Несколько вложенных интерфейсов
+/*!
+     * \test Тест 22: Несколько вложенных интерфейсов
+     * Проверяет обработку класса с несколькими вложенными интерфейсами
+     */
 QTest::newRow("multiple_nested_interfaces")
     << QStringList({
            "class TestClass {",
@@ -488,6 +576,10 @@ QTest::newRow("multiple_nested_interfaces")
     << 8 << 1 << QSet<error>();
 
 // Тест 23: Вложены и интерфейс, и класс
+/*!
+     * \test Тест 23: Вложены и интерфейс, и класс
+     * Проверяет обработку класса с вложенными и классом, и интерфейсом
+     */
 QTest::newRow("nested_class_and_interface")
     << QStringList({
            "class TestClass {",
@@ -518,6 +610,10 @@ QTest::newRow("nested_class_and_interface")
     << 7 << 1 << QSet<error>();
 
 // Тест 24: Две пары фигурных скоб
+/*!
+     * \test Тест 24: Две пары фигурных скоб
+     * Проверяет обработку класса с несколькими парами фигурных скобок
+     */
 QTest::newRow("two_brace_pairs")
     << QStringList({
            "class TestClass {",
@@ -541,6 +637,10 @@ QTest::newRow("two_brace_pairs")
     << 6 << 1 << QSet<error>();
 
 // Тест 25: Вложенные фигурные скобы
+/*!
+     * \test Тест 25: Вложенные фигурные скобы
+     * Проверяет обработку вложенных фигурных скобок в методах класса
+     */
 QTest::newRow("nested_braces")
     << QStringList({
            "class TestClass {",
@@ -564,6 +664,10 @@ QTest::newRow("nested_braces")
     << 7 << 1 << QSet<error>();
 
 // Тест 26: Фигурные скобки в однострочном комментарии
+/*!
+     * \test Тест 26: Фигурные скобки в однострочном комментарии
+     * Проверяет игнорирование скобок в однострочных комментариях
+     */
 QTest::newRow("braces_in_singleline_comment")
     << QStringList({
            "class TestClass {",
@@ -583,6 +687,10 @@ QTest::newRow("braces_in_singleline_comment")
     << 3 << 1 << QSet<error>();
 
 // Тест 27: Фигурные скобки в многострочном комментарии
+/*!
+     * \test Тест 27: Фигурные скобки в многострочном комментарии
+     * Проверяет игнорирование скобок в многострочных комментариях
+     */
 QTest::newRow("braces_in_multiline_comment")
     << QStringList({
            "class TestClass {",
@@ -604,6 +712,10 @@ QTest::newRow("braces_in_multiline_comment")
     << 5 << 1 << QSet<error>();
 
 // Тест 28: Фигурные скобки в строковой константе
+/*!
+     * \test Тест 28: Фигурные скобки в строковой константе
+     * Проверяет игнорирование скобок в строковых константах
+     */
 QTest::newRow("braces_in_string_literal")
     << QStringList({
            "class TestClass {",
@@ -623,6 +735,10 @@ QTest::newRow("braces_in_string_literal")
     << 3 << 1 << QSet<error>();
 
 // Тест 29: Фигурные скобки в символьной константе
+/*!
+     * \test Тест 29: Фигурные скобки в символьной константе
+     * Проверяет игнорирование скобок в символьных константах
+     */
 QTest::newRow("braces_in_char_literal")
     << QStringList({
            "class TestClass {",
@@ -642,6 +758,10 @@ QTest::newRow("braces_in_char_literal")
     << 3 << 1 << QSet<error>();
 
 // Тест 30: Нет закрывающей скобки (ошибка)
+/*!
+     * \test Тест 30: Нет закрывающей скобки (ошибка)
+     * Проверяет обработку ситуации с отсутствующей закрывающей скобкой класса
+     */
 QTest::newRow("unclosed_class_brace")
     << QStringList({
         "class TestClass {",
@@ -661,6 +781,10 @@ QTest::newRow("unclosed_class_brace")
     << QSet<error>({error(typeMistakes::noClosingFiguredScoop, 0, 0,0,0,0,0,0,0,0,4)});
 
 // Тест 31: Методы с одинаковыми именами (перегрузка)
+/*!
+     * \test Тест 31: Методы с одинаковыми именами (перегрузка)
+     * Проверяет обработку перегруженных методов в классе
+     */
 QTest::newRow("overloaded_methods")
     << QStringList({
         "class TestClass {",
@@ -685,6 +809,10 @@ QTest::newRow("overloaded_methods")
     << 4 << 1 << QSet<error>();
 
 // Тест 32: Несколько конструкторов
+/*!
+     * \test Тест 32: Несколько конструкторов
+     * Проверяет обработку класса с несколькими конструкторами
+     */
 QTest::newRow("multiple_constructors")
     << QStringList({
         "class TestClass {",
@@ -711,6 +839,10 @@ QTest::newRow("multiple_constructors")
     << 5 << 1 << QSet<error>();
 
 // Тест 33: Статический конструктор в классе
+/*!
+     * \test Тест 33: Статический конструктор в классе
+     * Проверяет обработку статического блока инициализации в классе
+     */
 QTest::newRow("simple_static_initializer")
     << QStringList({
            "class SimpleClass {",
