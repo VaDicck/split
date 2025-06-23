@@ -2,68 +2,94 @@
 #include "main.h"
 #include <QMap>
 
-
 void testSplitField::test_field_data() {
     QTest::addColumn<QStringList>("fieldDeclaration");
     QTest::addColumn<fieldMap>("expectedResult");
 
-    // Тест 1: Публичное поле без инициализации
+    /*!
+     * \test Тест 1: Публичное поле без инициализации
+     * Проверяет обработку публичного поля без значения по умолчанию
+     */
     QTest::newRow("public_field_no_init")
         << QStringList({"public", "int", "a", ";"})
         << fieldMap({
                {"a", field("a", "int", "Public", false)}
            });
 
-    // Тест 2: Приватное поле без инициализации
+    /*!
+     * \test Тест 2: Приватное поле без инициализации
+     * Проверяет обработку приватного поля без значения по умолчанию
+     */
     QTest::newRow("private_field_no_init")
         << QStringList({"private", "int", "a", ";"})
         << fieldMap({
                {"a", field("a", "int", "Private", false)}
            });
 
-    // Тест 3: Защищенное поле без инициализации
+    /*!
+     * \test Тест 3: Защищенное поле без инициализации
+     * Проверяет обработку защищенного поля без значения по умолчанию
+     */
     QTest::newRow("protected_field_no_init")
         << QStringList({ "protected", "int", "a", ";"})
         << fieldMap({
                {"a", field("a", "int", "Protected", false)}
            });
 
-    // Тест 4: Поле без модификатора
+    /*!
+     * \test Тест 4: Поле без модификатора
+     * Проверяет обработку поля без указания модификатора доступа
+     */
     QTest::newRow("no_modifier_field")
         << QStringList({ "int", "a", ";"})
         << fieldMap({
                {"a", field("a", "int", "default", false)}
            });
 
-    // Тест 5: Статическое поле без модификатора
+    /*!
+     * \test Тест 5: Статическое поле без модификатора
+     * Проверяет обработку статического поля без модификатора доступа
+     */
     QTest::newRow("static_no_modifier")
         << QStringList({ "static", "int", "a", ";"})
         << fieldMap({
-               {"a", field("a", "int", "default", true)},
-           });
+                     {"a", field("a", "int", "default", true)},
+                     });
 
-    // Тест 6: Статическое перед модификатором
+    /*!
+     * \test Тест 6: Статическое перед модификатором
+     * Проверяет обработку статического поля с модификатором доступа после static
+     */
     QTest::newRow("static_before_modifier")
         << QStringList({ "static", "private", "int", "a", ";"})
         << fieldMap({
                {"a", field("a", "int", "Private", true)}
            });
 
-    // Тест 7: Статическое после модификатора
+    /*!
+     * \test Тест 7: Статическое после модификатора
+     * Проверяет обработку статического поля с модификатором доступа перед static
+     */
     QTest::newRow("static_after_modifier")
         << QStringList({ "private", "static", "int", "a", ";"})
         << fieldMap({
                {"a", field("a", "int", "Private", true)}
            });
 
-    // Тест 8: Инициализированное поле
+    /*!
+     * \test Тест 8: Инициализированное поле
+     * Проверяет обработку поля с инициализацией значения
+     */
     QTest::newRow("initialized_field")
         << QStringList({ "int", "a", "=", "6", ";"})
         << fieldMap({
                {"a", field("a", "int", "default", false)}
            });
 
-    // Тест 9: Несколько полей в объявлении
+    /*!
+     * \test Тест 9: Несколько полей в объявлении
+     * Проверяет обработку нескольких полей в одном объявлении
+     */
     QTest::newRow("multiple_fields")
         << QStringList({ "int", "a", "=", "6", ",", "ber", "=", "3", ",", "cac_e", ";"})
         << fieldMap({
@@ -72,28 +98,40 @@ void testSplitField::test_field_data() {
                {"cac_e", field("cac_e", "int", "default", false)}
            });
 
-    // Тест 10: Контейнерный тип
+    /*!
+     * \test Тест 10: Контейнерный тип
+     * Проверяет обработку поля с типом-контейнером
+     */
     QTest::newRow("container_type")
         << QStringList({"Map", "<", "integer", ",", "float", ">", "len"})
         << fieldMap({
                {"len", field("len", "Map<integer, float>", "default", false)}
            });
 
-    // Тест 11: Вложенные контейнеры
+    /*!
+     * \test Тест 11: Вложенные контейнеры
+     * Проверяет обработку поля с вложенными типами-контейнерами
+     */
     QTest::newRow("nested_containers")
         << QStringList({"Map", "<", "List", "<", "char", ">", ",", "Map", "<", "int", ",", "double", ">", ">", "len"})
         << fieldMap({
                {"len", field("len", "Map<List<char>, Map<int, double>>", "default", false)}
            });
 
-    // Тест 12: Массив
+    /*!
+     * \test Тест 12: Массив
+     * Проверяет обработку поля-массива без указания размера
+     */
     QTest::newRow("array_type")
         << QStringList({"int", "a", "[", "]", ";"})
         << fieldMap({
                {"a", field("a", "int[]", "default", false)}
            });
 
-    // Тест 13: Массив с размером
+    /*!
+     * \test Тест 13: Массив с размером
+     * Проверяет обработку поля-массива с указанием размера
+     */
     QTest::newRow("sized_array")
         << QStringList({"int", "a", "[", "34", "]", ";"})
         << fieldMap({
@@ -111,5 +149,3 @@ void testSplitField::test_field() {
     QString msg = verifyMapField(actualResult, expectedResult);
     QVERIFY2(msg.isEmpty(), qPrintable(msg));
 }
-
-
