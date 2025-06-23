@@ -12,6 +12,10 @@ void testsplitinterface::test_split_data() {
     QTest::addColumn<QSet<error>>("expectedErrors");
 
     // Тест 1: Интерфейс с методом и полем
+    /*!
+     * \test Тест 1: Интерфейс с методом и полем
+     * Проверяет базовый разбор интерфейса с одним методом и полем
+     */
     QTest::newRow("interface_with_method_and_field")
         << QStringList({"interface TestInterface {", "void interfaceMethod();", "int b;", "}", "float fd;"})
         << 0 << 27
@@ -30,6 +34,10 @@ void testsplitinterface::test_split_data() {
         << QSet<error>();
 
     // Тест 2: Интерфейс в одной строке
+    /*!
+     * \test Тест 2: Интерфейс в одной строке
+     * Проверяет разбор интерфейса, объявленного в одной строке
+     */
     QTest::newRow("single_line_interface")
         << QStringList({"interface TestInterface {void interfaceMethod();int b;}float fd;"})
         << 0 << 25
@@ -48,6 +56,10 @@ void testsplitinterface::test_split_data() {
         << QSet<error>();
 
     // Тест 3: Публичный интерфейс
+    /*!
+     * \test Тест 3: Публичный интерфейс
+     * Проверяет разбор интерфейса с модификатором public
+     */
     QTest::newRow("public_interface")
         << QStringList({"public interface TestInterface {", "void interfaceMethod();", "int b;", "}", "float fd;"})
         << 0 << 33
@@ -66,6 +78,10 @@ void testsplitinterface::test_split_data() {
         << QSet<error>();
 
     // Тест 6: Один родительский интерфейс
+    /*!
+     * \test Тест 6: Интерфейс с одним родителем
+     * Проверяет разбор интерфейса, расширяющего один родительский интерфейс
+     */
     QTest::newRow("single_parent_interface")
         << QStringList({"interface TestInterface extends Test1{", "void interfaceMethod();", "int b;", "}", "float fd;"})
         << 0 << 38
@@ -79,6 +95,10 @@ void testsplitinterface::test_split_data() {
         << 3 << 1 << QSet<error>();
 
     // Тест 7: Несколько родительских интерфейсов
+    /*!
+     * \test Тест 7: Несколько родительских интерфейсов
+     * Проверяет разбор интерфейса, расширяющего несколько интерфейсов
+     */
     QTest::newRow("multiple_parent_interfaces")
         << QStringList({"interface TestInterface extends Test1,Test2,Test3{", "void interfaceMethod();", "int b;", "}", "float fd;"})
         << 0 << 51
@@ -92,6 +112,10 @@ void testsplitinterface::test_split_data() {
         << 3 << 1 << QSet<error>();
 
     // Тест 8: Интерфейс с несколькими полями
+    /*!
+     * \test Тест 8: Интерфейс с несколькими полями
+     * Проверяет разбор интерфейса с несколькими полями
+     */
     QTest::newRow("multiple_fields_interface")
         << QStringList({"interface TestInterface {", "void interfaceMethod();", "int b;", "String nil;", "float c = 8.3;", "}", "float fd;"})
         << 0 << 25
@@ -109,6 +133,10 @@ void testsplitinterface::test_split_data() {
         << 5 << 1 << QSet<error>();
 
     // Тест 9: Интерфейс с несколькими методами
+    /*!
+     * \test Тест 9: Интерфейс с несколькими методами
+     * Проверяет разбор интерфейса с несколькими методами
+     */
     QTest::newRow("multiple_methods_interface")
         << QStringList({"interface TestInterface {", "void interfaceMethod();", "int intTestMet1();", "float fTestMet2();", "int b;", "}", "float fd;"})
         << 0 << 25
@@ -126,6 +154,10 @@ void testsplitinterface::test_split_data() {
         << 5 << 1 << QSet<error>();
 
     // Тест 10: Вложенный класс
+    /*!
+     * \test Тест 10: Вложенный класс
+     * Проверяет разбор интерфейса с вложенным классом
+     */
     QTest::newRow("nested_class_interface")
         << QStringList({"interface TestInterface {", "class NestedClass{ char c; }", "int b;", "}", "float fd;"})
         << 0 << 25
@@ -141,6 +173,10 @@ void testsplitinterface::test_split_data() {
         << 3 << 1 << QSet<error>();
 
     // Тест 11: Несколько вложенных классов
+    /*!
+     * \test Тест 11: Несколько вложенных классов
+     * Проверяет разбор интерфейса с несколькими вложенными классами
+     */
     QTest::newRow("multiple_nested_classes")
         << QStringList({
                "interface TestInterface {",
@@ -167,6 +203,10 @@ void testsplitinterface::test_split_data() {
         << 5 << 1 << QSet<error>();
 
     // Тест 12: Вложенный интерфейс
+    /*!
+     * \test Тест 12: Вложенный интерфейс
+     * Проверяет разбор интерфейса с вложенным интерфейсом
+     */
     QTest::newRow("nested_interface")
         << QStringList({
                "interface TestInterface {",
@@ -187,6 +227,10 @@ void testsplitinterface::test_split_data() {
         << 3 << 1 << QSet<error>();
 
     // Тест 13: Несколько вложенных интерфейсов
+    /*!
+     * \test Тест 13: Несколько вложенных интерфейсов
+     * Проверяет разбор интерфейса с несколькими вложенными интерфейсами
+     */
     QTest::newRow("multiple_nested_interfaces")
         << QStringList({
                "interface TestInterface {",
@@ -213,6 +257,10 @@ void testsplitinterface::test_split_data() {
         << 5 << 1 << QSet<error>();
 
     // Тест 14: Вложенные интерфейс и класс
+    /*!
+     * \test Тест 14: Вложенные интерфейс и класс
+     * Проверяет разбор интерфейса с вложенными и классом, и интерфейсом
+     */
     QTest::newRow("mixed_nested_elements")
         << QStringList({
                "interface TestInterface {",
@@ -237,6 +285,10 @@ void testsplitinterface::test_split_data() {
         << 4 << 1 << QSet<error>();
 
     // Тест 15: Две пары фигурных скобок
+    /*!
+     * \test Тест 15: Две пары фигурных скобок
+     * Проверяет обработку нескольких пар фигурных скобок в интерфейсе
+     */
     QTest::newRow("two_brace_pairs")
         << QStringList({
                "interface TestInterface {",
@@ -257,6 +309,10 @@ void testsplitinterface::test_split_data() {
         << 4 << 1 << QSet<error>();
 
     // Тест 16: Вложенные фигурные скобки
+    /*!
+     * \test Тест 16: Вложенные фигурные скобки
+     * Проверяет обработку вложенных фигурных скобок в методах интерфейса
+     */
     QTest::newRow("nested_braces")
         << QStringList({
                "interface TestInterface {",
@@ -277,6 +333,10 @@ void testsplitinterface::test_split_data() {
         << 4 << 1 << QSet<error>();
 
     // Тест 17: Фигурные скобки в однострочном комментарии
+    /*!
+     * \test Тест 17: Фигурные скобки в однострочном комментарии
+     * Проверяет игнорирование скобок в однострочных комментариях
+     */
     QTest::newRow("brace_in_line_comment")
         << QStringList({
                "interface TestInterface {",
@@ -295,6 +355,10 @@ void testsplitinterface::test_split_data() {
         << 3 << 1 << QSet<error>();
 
     // Тест 18: Фигурные скобки в многострочном комментарии
+    /*!
+     * \test Тест 18: Фигурные скобки в многострочном комментарии
+     * Проверяет игнорирование скобок в многострочных комментариях
+     */
     QTest::newRow("brace_in_multiline_comment")
         << QStringList({
                "interface TestInterface {",
@@ -313,6 +377,10 @@ void testsplitinterface::test_split_data() {
         << 3 << 1 << QSet<error>();
 
     // Тест 19: Фигурные скобки в строковой константе
+    /*!
+     * \test Тест 19: Фигурные скобки в строковой константе
+     * Проверяет игнорирование скобок в строковых константах
+     */
     QTest::newRow("brace_in_string")
         << QStringList({
                "interface TestInterface {",
@@ -331,6 +399,10 @@ void testsplitinterface::test_split_data() {
         << 3 << 1 << QSet<error>();
 
     // Тест 20: Фигурные скобки в символьной константе
+    /*!
+     * \test Тест 20: Фигурные скобки в символьной константе
+     * Проверяет игнорирование скобок в символьных константах
+     */
     QTest::newRow("brace_in_char")
         << QStringList({
                "interface TestInterface {",
@@ -349,6 +421,10 @@ void testsplitinterface::test_split_data() {
         << 3 << 1 << QSet<error>();
 
     // Тест 21: Нет закрывающей фигурной скобки
+    /*!
+     * \test Тест 21: Нет закрывающей фигурной скобки
+     * Проверяет обработку отсутствия закрывающей скобки интерфейса
+     */
     QTest::newRow("missing_closing_brace")
         << QStringList({
                "interface TestInterface {",
