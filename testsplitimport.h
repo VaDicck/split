@@ -14,6 +14,7 @@
 
 /*!
  * \class testsplitimport
+ * \ingroup TestClasses
  * \brief Класс для тестирования разбиения(сборки) import-выражений
  */
 class testsplitimport : public QObject
