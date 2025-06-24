@@ -999,7 +999,8 @@ void generateXMLClass(QXmlStreamWriter& writer, const class_info& currentClass,c
         writer.writeAttribute("returnType", currentMethod.getReturnType());
         writer.writeAttribute("access", currentMethod.getMod());
         writer.writeAttribute("isStatic", currentMethod.getIsStatic() ? "true" : "false");
-        writer.writeAttribute("isAbstract", currentMethod.getIsAbstract() ? "true" : "false");
+        // Если файл пуст, то кода нет => метод абстрактный
+        writer.writeAttribute("isAbstract", (currentMethod.getIsAbstract() || currentMethod.getCode().isEmpty()) ? "true": "false");
         // Аргументы метода
         foreach (const argument& currentArgument, currentMethod.getArguments()) {
             writer.writeStartElement("argument");
@@ -1007,8 +1008,8 @@ void generateXMLClass(QXmlStreamWriter& writer, const class_info& currentClass,c
             writer.writeAttribute("type", currentArgument.getType());
             writer.writeEndElement(); // </argument>
         }
-        // Создаем .txt файл с кодом метода если на нулевой глубине
-        if(depth==0){
+        // Создаем .txt файл с кодом метода если на нулевой глубине и не пуст
+        if(depth==0  && !currentMethod.getCode().isEmpty()){
             QString methodFilePath = newDirPath + "/" + currentMethod.getFilename() + ".txt";
             QFile methodFile(methodFilePath);
             if (methodFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -1133,8 +1134,8 @@ void generateXMLInterface(QXmlStreamWriter& writer, const interface_info& curren
             writer.writeAttribute("type", currentArgument.getType());
             writer.writeEndElement(); // </argument>
         }
-        // Создаем .txt файл с кодом метода если на нулевой глубине
-        if(depth==0){
+        // Создаем .txt файл с кодом метода если на нулевой глубине и не пустой код
+        if(depth==0  && !currentMethod.getCode().isEmpty()){
             QString methodFilePath = newDirPath + "/" + currentMethod.getFilename() + ".txt";
             QFile methodFile(methodFilePath);
             if (methodFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
