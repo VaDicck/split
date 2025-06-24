@@ -12,6 +12,7 @@ void testFindLexemes::test_find_lexemes_data()
     QTest::addColumn<StringPair>("expectedResult");      ///< Ожидаемый результат (найденная лексема и список лексем)
     QTest::addColumn<int>("expectedIndexString");        ///< Ожидаемый индекс строки после поиска
     QTest::addColumn<int>("expectedIndexSimbol");        ///< Ожидаемая позиция в строке после поиска
+    QTest::addColumn<QSet<error>>("expectedErrors");     ///< Ожидаемые ошибки
 
     // Тест 1: Базовый тест
     /*!
@@ -25,7 +26,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("int", {{"int"}, {"x"}, {"="}, {";"}})
-        << 0 << 10;
+        << 0 << 10 << QSet<error>();
 
     // Тест 2: Нет нужных лексем
     /*!
@@ -39,7 +40,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("", {{"int"}, {"x"}, {"="}, {";"}})
-        << 0 << 10;
+        << 0 << 10 << QSet<error>();
 
     // Тест 3: Нет нужных символов
     /*!
@@ -53,7 +54,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList()
         << QStringList({";"})
         << StringPair("int", {{"int"}, {"x"}, {";"}})
-        << 0 << 10;
+        << 0 << 10 << QSet<error>();
 
     // Тест 4: Нет завершающих лексем
     /*!
@@ -67,7 +68,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList()
         << StringPair("int", {{"int"}, {"x"}, {"="}, {"String"}, {"s"}, {"="}})
-        << 2 << 0;
+        << 2 << 0 << QSet<error>();
 
     // Тест 5: В коде нет нужных лексем
     /*!
@@ -81,7 +82,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("", {{"x"}, {"="}, {";"}})
-        << 0 << 6;
+        << 0 << 6 << QSet<error>();
 
     // Тест 6: Несколько нужных символов
     /*!
@@ -95,7 +96,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"=", "+", "-"})
         << QStringList({";"})
         << StringPair("int", {{"int"}, {"x"}, {"="}, {"+"}, {"-"}, {";"}})
-        << 0 << 14;
+        << 0 << 14 << QSet<error>();
 
     // Тест 7: Несколько завершающих лексем
     /*!
@@ -109,7 +110,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({":", ";", "potato", "tomato"})
         << StringPair("int", {{"int"}, {"x"}, {"="}, {";"}})
-        << 0 << 10;
+        << 0 << 10 << QSet<error>();
 
     // Тест 8: Одинаковые лексемы в нужных и завершающих
     /*!
@@ -123,7 +124,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";", "chips"})
         << StringPair("chips", {{"chips"}})
-        << 0 << 5;
+        << 0 << 5 << QSet<error>();
 
     // Тест 9: Нужная лексема в однострочном комментарии
     /*!
@@ -137,7 +138,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("String", {{"x"}, {"="}, {"String"}, {"s"}, {"="}, {";"}})
-        << 1 << 18;
+        << 1 << 18 << QSet<error>();
 
     // Тест 10: Нужная лексема в многострочном комментарии
     /*!
@@ -151,7 +152,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("String", {{"String"}, {"s"}, {"="}, {";"}})
-        << 4 << 18;
+        << 4 << 18 << QSet<error>();
 
     // Тест 11: Нужная лексема в символьной константе
     /*!
@@ -165,7 +166,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("", {{"char"}, {"x"}, {"="}, {";"}})
-        << 0 << 13;
+        << 0 << 13 << QSet<error>();
 
     // Тест 12: Нужная лексема в строковой константе
     /*!
@@ -179,7 +180,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("", {{"String"}, {"hello"}, {"="}, {";"}})
-        << 0 << 26;
+        << 0 << 26 << QSet<error>();
 
     // Тест 13: Поиск с середины кода
     /*!
@@ -193,7 +194,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("s", {{"ing"}, {"s"}, {"="}, {";"}})
-        << 1 << 18;
+        << 1 << 18 << QSet<error>();
 
     // Тест 14: Множественные пробелы в коде
     /*!
@@ -207,7 +208,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("int", {{"int"}, {"x"}, {"="}, {";"}})
-        << 0 << 21;
+        << 0 << 21 << QSet<error>();
 
     // Тест 15: Лексемы через перевод строки в коде
     /*!
@@ -221,7 +222,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("int", {{"int"}, {"x"}, {"="}, {";"}})
-        << 4 << 1;
+        << 4 << 1 << QSet<error>();
 
     // Тест 16: Несколько нужных лексем в коде
     /*!
@@ -235,7 +236,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("int", {{"int"}, {"xel"}, {"="}, {"last"}, {";"}})
-        << 0 << 15;
+        << 0 << 15 << QSet<error>();
 
     // Тест 17: Нужная лексема является символом
     /*!
@@ -249,7 +250,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("=", {{"int"}, {"x"}, {"="}, {";"}})
-        << 0 << 10;
+        << 0 << 10 << QSet<error>();
 
     // Тест 18: Завершающая лексема является словом
     /*!
@@ -263,7 +264,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({"String"})
         << StringPair("int", {{"int"}, {"x"}, {"="}, {"String"}})
-        << 1 << 6;
+        << 1 << 6 << QSet<error>();
 
     // Тест 19: Лексемы с нижним подчеркиванием
     /*!
@@ -277,7 +278,7 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("int_eger", {{"int_eger"}, {"x_x"}, {"="}, {";"}})
-        << 0 << 17;
+        << 0 << 17 << QSet<error>();
 
     // Тест 20: Лексемы с цифрами
     /*!
@@ -291,7 +292,47 @@ void testFindLexemes::test_find_lexemes_data()
         << QStringList({"="})
         << QStringList({";"})
         << StringPair("int", {{"int"}, {"x34"}, {"="}, {"b32fd53"}, {";"}})
-        << 0 << 21;
+        << 0 << 21 << QSet<error>();
+
+    // Тест 21: Ошибка, не закрыт многострочный комментарий
+    /*!
+     * \test Тест 21: Ошибка, не закрыт многострочный комментарий
+     * Проверяет случилась ли ошибка при незакрытом комментарии и проверился ли далее нормально код
+     */
+    QTest::newRow("not_close_multiple_comm")
+        << QStringList({"int x34 /*= 5, b32fd53;", "String s = \"test\";"})
+        << 0 << 0
+        << QStringList({"int", "String"})
+        << QStringList({"="})
+        << QStringList({";"})
+        << StringPair("int", {{"int"}, {"x34"}, {"="}, {"b32fd53"}, {";"}})
+        << 0 << 23 << QSet<error>({error(typeMistakes::notClosedComment, 0,0,0,0,0,0,0,0,0,0)});
+    // Тест 22: Ошибка, не закрыта строковая константа
+    /*!
+     * \test Тест 22: Ошибка, не закрыта строковая константа
+     * Проверяет случилась ли ошибка при незакрытой строковой константе и проверился ли далее нормально код
+     */
+    QTest::newRow("not_close_string_const")
+        << QStringList({"String x34 = \"b32fd53;", "char s = 't'  ;"})
+        << 0 << 0
+        << QStringList({"String", "char"})
+        << QStringList({"="})
+        << QStringList({";"})
+        << StringPair("char", {{"char"}, {"s"}, {"="}, {";"}})
+        << 1 << 15 << QSet<error>({error(typeMistakes::notClosedDoubleQuotes, 0,0,0,0,0,0,0,0,0,0)});
+    // Тест 23: Ошибка, не закрыта символьная константа
+    /*!
+     * \test Тест 23: Ошибка, не закрыта символьная константа
+     * Проверяет случилась ли ошибка при незакрытой символьной константе и проверился ли далее нормально код
+     */
+    QTest::newRow("not_close_symbol_const")
+        << QStringList({"char x34 = 'b;", "char s = 't'  ;"})
+        << 0 << 0
+        << QStringList({"char"})
+        << QStringList({"="})
+        << QStringList({";"})
+        << StringPair("char", {{"char"}, {"s"}, {"="}, {";"}})
+        << 1 << 15 << QSet<error>({error(typeMistakes::notClosedSingleQuotes, 0,0,0,0,0,0,0,0,0,0)});
 }
 
 void testFindLexemes::test_find_lexemes()
@@ -305,12 +346,13 @@ void testFindLexemes::test_find_lexemes()
     QFETCH(StringPair, expectedResult);
     QFETCH(int, expectedIndexString);
     QFETCH(int, expectedIndexSimbol);
-
+    QFETCH(QSet<error>, expectedErrors);
+    QSet<error> actualErrors;
     int actualIndexString = indexCurrentString;
     int actualIndexSimbol = indexCurrentSimbol;
 
     StringPair actualResult = findLexemes(code, actualIndexString, actualIndexSimbol,
-                                          neededLexemes, needSimbols, endLexems);
+                                          neededLexemes, needSimbols, endLexems, actualErrors);
 
     // Проверка результатов
     QCOMPARE(actualResult.first, expectedResult.first);
@@ -326,6 +368,9 @@ void testFindLexemes::test_find_lexemes()
             }
         }
     }
+    // Проверим ошибки
+    verifyErrors(actualErrors, expectedErrors);
+    // Проверим индексы в коде
     QCOMPARE(actualIndexString, expectedIndexString);
     QCOMPARE(actualIndexSimbol, expectedIndexSimbol);
 }
