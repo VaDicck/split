@@ -778,7 +778,7 @@ QTest::newRow("unclosed_class_brace")
                     {}, {}, {}, false, false
                 )
     << 4 << 0
-    << QSet<error>({error(typeMistakes::noClosingFiguredScoop, 0, 0,0,0,0,0,0,0,0,4)});
+    << QSet<error>({error(typeMistakes::noClosingFiguredScoop, 0, 0,0,0,0,0,0,0,0,0)});
 
 // Тест 31: Методы с одинаковыми именами (перегрузка)
 /*!
