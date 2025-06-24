@@ -120,7 +120,7 @@ bool skipMultilineComment(const QStringList &code,  int &indexCurrentString, int
 
 //Найти лексемы
 QPair<QString, QStringList> findLexemes(const QStringList &code, int &currentString, int &currentSymbol,
-                                const QStringList &neededLexemes,const QStringList &needSymbols, const QStringList &endLexemes, QSet<error>& errors)
+                                const QStringList &neededLexemes,const QStringList &needSymbols, const QStringList &endLexemes, QSet<error>& errors, const int& nFile)
 {
     // Флаг нужных лексем
     bool flagNeedLexemes = true;
@@ -159,14 +159,14 @@ QPair<QString, QStringList> findLexemes(const QStringList &code, int &currentStr
             if(foundWord == "/*"){
                 //Пропустить многострочный комментарий
                 if(!skipMultilineComment(code, currentString, currentSymbol)){
-                    errors.insert(error(typeMistakes::notClosedComment,0,0,0,0,0,0,0,0,0,currentString));
+                    errors.insert(error(typeMistakes::notClosedComment,nFile,0,0,0,0,0,0,0,0,currentString));
                 }
             }
             // Иначе если строковая константа
             else if(foundWord == "\""){
                 //Пропустить строковую константу
                 if(!skipConstant(code[currentString], currentSymbol, '"')){
-                    errors.insert(error(typeMistakes::notClosedDoubleQuotes,0,0,0,0,0,0,0,0,0,currentString));
+                    errors.insert(error(typeMistakes::notClosedDoubleQuotes,nFile,0,0,0,0,0,0,0,0,currentString));
                     // Так как строка считается неверноей, начнем поиск заново с новой строки
                     foundLexemes.first.clear();
                     foundLexemes.second.clear();
@@ -177,7 +177,7 @@ QPair<QString, QStringList> findLexemes(const QStringList &code, int &currentStr
             else if(foundWord == "'"){
                 //Пропустить символьную константу
                 if(!skipConstant(code[currentString], currentSymbol, '\'')){
-                    errors.insert(error(typeMistakes::notClosedSingleQuotes,0,0,0,0,0,0,0,0,0,currentString));
+                    errors.insert(error(typeMistakes::notClosedSingleQuotes,nFile,0,0,0,0,0,0,0,0,currentString));
                     // Так как строка считается неверноей, начнем поиск заново с новой строки
                     foundLexemes.first.clear();
                     foundLexemes.second.clear();
@@ -267,7 +267,7 @@ QString splitImport(const QStringList &declarationImport){
 }
 
 //Разбить метод
-method splitMethod(const QStringList &code, int &indexCurrentString, int &indexCurrentSymbol, const QString &nameClass, const QStringList &methodDeclaration, QSet<error> &errors){
+method splitMethod(const QStringList &code, int &indexCurrentString, int &indexCurrentSymbol, const QString &nameClass, const QStringList &methodDeclaration, QSet<error> &errors, const int& nFile){
     // Если является статическим блоком
     method currentMethod;
     // Если является статическим
@@ -398,17 +398,17 @@ method splitMethod(const QStringList &code, int &indexCurrentString, int &indexC
                 indexCurrentSymbol = indexCurrentSymbol +match.capturedEnd();
                 if(foundWord == "/*"){
                     if(!skipMultilineComment(code, indexCurrentString, indexCurrentSymbol)){
-                        errors.insert(error(typeMistakes::notClosedComment,0,0,0,0,0,0,0,0,0,indexCurrentString));
+                        errors.insert(error(typeMistakes::notClosedComment,nFile,0,0,0,0,0,0,0,0,indexCurrentString));
                     }
                 }
                 else if(foundWord == "\""){
                     if(!skipConstant(code[indexCurrentString],indexCurrentSymbol, '"')){
-                        errors.insert(error(typeMistakes::notClosedDoubleQuotes,0,0,0,0,0,0,0,0,0,indexCurrentString));
+                        errors.insert(error(typeMistakes::notClosedDoubleQuotes,nFile,0,0,0,0,0,0,0,0,indexCurrentString));
                     }
                 }
                 else if(foundWord == "'"){
                     if(!skipConstant(code[indexCurrentString],indexCurrentSymbol, '\'')){
-                        errors.insert(error(typeMistakes::notClosedSingleQuotes,0,0,0,0,0,0,0,0,0,indexCurrentString));
+                        errors.insert(error(typeMistakes::notClosedSingleQuotes,nFile,0,0,0,0,0,0,0,0,indexCurrentString));
                     }
                 }
                 else if(foundWord == "//"){
@@ -431,7 +431,7 @@ method splitMethod(const QStringList &code, int &indexCurrentString, int &indexC
         // Если не нашли завершения метода
         if(countOpenBracket!= countCloseBracket){
             indexCurrentString = startCodeMethodString, indexCurrentSymbol=startCodeMethodSymbol;
-            errors.insert(error(typeMistakes::noClosingFiguredScoop,0,0,0,0,0,0,0,0,0,indexCurrentString));
+            errors.insert(error(typeMistakes::noClosingFiguredScoop,nFile,0,0,0,0,0,0,0,0,indexCurrentString));
             return currentMethod;
         }
         // Если не в одной строке
@@ -450,7 +450,8 @@ method splitMethod(const QStringList &code, int &indexCurrentString, int &indexC
 }
 
 // Разбить интерфейс
-interface_info splitInterface(const QStringList &code, int &indexCurrentString, int &indexCurrentSymbol , const QStringList &interfaceDeclaration, QSet<error> &errors){
+interface_info splitInterface(const QStringList &code, int &indexCurrentString, int &indexCurrentSymbol , const QStringList &interfaceDeclaration, QSet<error> &errors, const int& nFile){
+    int indexStringStartSearch = indexCurrentString; // Для информации ошибки
     // Найденный интерфейс
     interface_info foundInterface;
     // Если явлется публичным
@@ -474,20 +475,20 @@ interface_info splitInterface(const QStringList &code, int &indexCurrentString, 
     //Пока текущая строка меньше количества строк кода
     while(indexCurrentString < code.size()){
         // Найдем объявление
-        QPair<QString, QStringList> foundLexemes  = findLexemes(code, indexCurrentString, indexCurrentSymbol,{ "class", "interface"}, {"[", "]", "(", ")", ",", "<", ">", "="}, {"{",";", "}"}, errors);
+        QPair<QString, QStringList> foundLexemes  = findLexemes(code, indexCurrentString, indexCurrentSymbol,{ "class", "interface"}, {"[", "]", "(", ")", ",", "<", ">", "="}, {"{",";", "}"}, errors, nFile);
         if(indexCurrentString<code.size()){
             // Если нашли завершение блока кода возвращем интерфейс
             if(foundLexemes.second.last() == "}") return foundInterface;
             // Если нашли интерфейс разобьем и добавим интерфейс
             if(foundLexemes.first == "interface"){
-                interface_info vlojeniInterface = splitInterface(code, indexCurrentString, indexCurrentSymbol,foundLexemes.second, errors);
+                interface_info vlojeniInterface = splitInterface(code, indexCurrentString, indexCurrentSymbol,foundLexemes.second, errors, nFile);
                 QMap<QString, interface_info> includesInterface = foundInterface.getIncludeInterface();
                 includesInterface.insert(vlojeniInterface.getNameInterface(), vlojeniInterface);
                 foundInterface.setIncludeInterface(includesInterface);
             }
             // Если нашли класс разобьем и добавим класс
             else if(foundLexemes.first == "class"){
-                class_info vnutriClass = splitClass(code, indexCurrentString, indexCurrentSymbol,foundLexemes.second, errors);
+                class_info vnutriClass = splitClass(code, indexCurrentString, indexCurrentSymbol,foundLexemes.second, errors, nFile);
                 QMap<QString, class_info> includesClasses = foundInterface.getIncludeClass();
                 includesClasses.insert(vnutriClass.getNameClass(), vnutriClass);
                 foundInterface.setIncludeClass(includesClasses);
@@ -496,10 +497,14 @@ interface_info splitInterface(const QStringList &code, int &indexCurrentString, 
                 // Иначе если есть круглая скобка(начало аргументов)
                 if(foundLexemes.second.contains("(") == true){
                     // разобьем метод и добавим к интерфейсу
-                    method Method = splitMethod(code, indexCurrentString, indexCurrentSymbol, "", foundLexemes.second, errors);
+                    method Method = splitMethod(code, indexCurrentString, indexCurrentSymbol, "", foundLexemes.second, errors, nFile);
                     QSet<method> methods = foundInterface.getMethods();
                     methods.insert(Method);
                     foundInterface.setMethods(methods);
+                    // Добавим ошибку если методов больше 25
+                    if(foundInterface.getMethods().size() >25){
+                        errors.insert(error(typeMistakes::manyMethodInInterface, nFile,0,0,0,0,0,foundInterface.getNameInterface(),foundInterface.getMethods().size(),0));
+                    }
                 }
                 // Иначе является полем, разобьем и добавим к интерфейсу
                 else{
@@ -507,12 +512,15 @@ interface_info splitInterface(const QStringList &code, int &indexCurrentString, 
                     QMap<QString, field> fields = foundInterface.getFields();
                     fields.insert(Field);
                     foundInterface.setFields(fields);
+                    if(foundInterface.getFields().size() >25){
+                        errors.insert(error(typeMistakes::manyFieldInInterface, nFile,0,0,0,0,0,foundInterface.getNameInterface(),0,foundInterface.getFields().size()));
+                    }
                 }
             }
         }
     }
     // Раз не вернулся интерфейс то не нашли } тогда добавим ошибку и вернем интерфейс
-    errors.insert(error(typeMistakes::noClosingFiguredScoop, 0, 0,0,0,0,0,0,0,0,indexCurrentString));
+    errors.insert(error(typeMistakes::noClosingFiguredScoop, nFile, 0,0,0,0,0,0,0,0,indexStringStartSearch));
     return foundInterface;
 }
 
@@ -580,7 +588,8 @@ QMap<QString, field> splitField(const QStringList &fieldDeclaration){
 }
 
 // Разбить класс
-class_info splitClass(const QStringList &code, int &indexCurrentString, int &indexCurrentSymbol,const QStringList &declarationClass, QSet<error> &errors){
+class_info splitClass(const QStringList &code, int &indexCurrentString, int &indexCurrentSymbol,const QStringList &declarationClass, QSet<error> &errors, const int& nFile){
+    int indexStringStartSearch = indexCurrentString; // Для информации ошибки
     class_info foundClass;
     //Добавить имя класса(после ключевого слова класс)
     foundClass.setNameClass(declarationClass[declarationClass.indexOf("class")+1]);
@@ -611,21 +620,21 @@ class_info splitClass(const QStringList &code, int &indexCurrentString, int &ind
     //Пока индекс текущей строки меньше количества строк кода
     while(indexCurrentString < code.size()) {
         // Найдем лексемы
-        QPair<QString, QStringList> foundLexemes = findLexemes(code, indexCurrentString, indexCurrentSymbol,{ "class", "interface"}, {"[", "]", "(", ")", ",", "<", ">", "="}, {"{",";", "}"}, errors);
+        QPair<QString, QStringList> foundLexemes = findLexemes(code, indexCurrentString, indexCurrentSymbol,{ "class", "interface"}, {"[", "]", "(", ")", ",", "<", ">", "="}, {"{",";", "}"}, errors, nFile);
         if(indexCurrentString<code.size()){
             // Если найдена завершающая скобка то вернем класс
             if(foundLexemes.second.last() == "}") return foundClass;
             else if(foundLexemes.second.size() > 1){
                 // Если нашли ключевое слово интерфейс то разобьем и добавим к классу
                 if(foundLexemes.first == "interface") {
-                    interface_info vlojeniInterface = splitInterface(code, indexCurrentString, indexCurrentSymbol, foundLexemes.second, errors);
+                    interface_info vlojeniInterface = splitInterface(code, indexCurrentString, indexCurrentSymbol, foundLexemes.second, errors, nFile);
                     QMap<QString, interface_info> includeInterface = foundClass.getIncludeInterface();
                     includeInterface.insert(vlojeniInterface.getNameInterface(), vlojeniInterface);
                     foundClass.setIncludeInterface(includeInterface);
                 }
                 // Если нашли ключевое слово класс то разобьем и добавим к классу
                 else if(foundLexemes.first == "class") {
-                    class_info vlojeniClass = splitClass(code, indexCurrentString, indexCurrentSymbol, foundLexemes.second, errors);
+                    class_info vlojeniClass = splitClass(code, indexCurrentString, indexCurrentSymbol, foundLexemes.second, errors, nFile);
                     QMap<QString, class_info> includesClasses = foundClass.getIncludesClasses();
                     includesClasses.insert(vlojeniClass.getNameClass(), vlojeniClass);
                     foundClass.setIncludesClasses(includesClasses);
@@ -633,12 +642,15 @@ class_info splitClass(const QStringList &code, int &indexCurrentString, int &ind
                 // Иначе если есть открывающая скобка(аргументы) или является статическим блоком кода
                 else if(foundLexemes.second.contains("(") || (foundLexemes.second.size()==2 &&foundLexemes.second[0]=="static")) {
                     // Разобьем метод
-                    method Method = splitMethod(code, indexCurrentString, indexCurrentSymbol, foundClass.getNameClass(), foundLexemes.second, errors);
+                    method Method = splitMethod(code, indexCurrentString, indexCurrentSymbol, foundClass.getNameClass(), foundLexemes.second, errors, nFile);
                     // Если является методом добавим к методам класса
                     if(!Method.getNameMethod().isEmpty()) {
                         QSet<method> methods = foundClass.getMethods();
                         methods.insert(Method);
                         foundClass.setMethods(methods);
+                        if(foundClass.getMethods().size() >25){
+                            errors.insert(error(typeMistakes::manyMethodInClass,nFile,0,0,0,0,foundClass.getNameClass(), "",foundClass.getMethods().size()));
+                        }
                     }
                     // Иначе к конструкторам класса
                     else {
@@ -653,12 +665,15 @@ class_info splitClass(const QStringList &code, int &indexCurrentString, int &ind
                     QMap<QString, field> fields = foundClass.getFields();
                     fields.insert(newField);
                     foundClass.setFields(fields);
+                    if(foundClass.getFields().size() >25){
+                        errors.insert(error(typeMistakes::manyFieldInClass,nFile,0,0,0,0,foundClass.getNameClass(), "",0,foundClass.getFields().size()));
+                    }
                 }
             }
         }
     }
     // Если не вернуся класс, значит не найдена скобка. Тогда добавим ошибку и вернем найденный класс
-    errors.insert(error(typeMistakes::noClosingFiguredScoop, 0, 0,0,0,0,0,0,0,0,indexCurrentString));
+    errors.insert(error(typeMistakes::noClosingFiguredScoop, nFile, 0,0,0,0,0,0,0,0,indexStringStartSearch));
     return foundClass;
 }
 
@@ -676,7 +691,7 @@ void splitProject(const QList<QStringList> &project, package_info &rootPack, QSe
         //Пока индекс текущей строки меньше количества строк
         while(indexCurrentString<file.size()){
             //Найти лексемы с нужными ключевыми словами {"package", "import", "class", "interface"}(функция - foundLexemes())
-            QPair<QString, QStringList> foundLexemes  = findLexemes(file, indexCurrentString, indexCurrentSymbol,{"package", "import", "class", "interface"}, {"*"}, {"{",";"}, errors);
+            QPair<QString, QStringList> foundLexemes  = findLexemes(file, indexCurrentString, indexCurrentSymbol,{"package", "import", "class", "interface"}, {"*"}, {"{",";"}, errors, numberFile);
             //Если ключевое слово package
             if(foundLexemes.first == "package"){
                 //Разбить пакет (функция - splitPackage())
@@ -696,19 +711,26 @@ void splitProject(const QList<QStringList> &project, package_info &rootPack, QSe
                 //Если ключевое слово class
                 else if(foundLexemes.first == "class"){
                     //Разбить класс - (функция - splitClass())
-                    class_info foundClass= splitClass(file, indexCurrentString, indexCurrentSymbol, foundLexemes.second, errors);
+                    class_info foundClass= splitClass(file, indexCurrentString, indexCurrentSymbol, foundLexemes.second, errors, numberFile);
                     foundClass.setImport(imports);
                     //Добавить класс к текущему пакету
                     (*currentPackage).addMapClass(foundClass);
-
+                    // Если классы превышают допустимые
+                    if((*currentPackage).getIncludesClasses().size() >15){
+                        errors.insert(error(typeMistakes::manyClassesInFile,numberFile,0,0,(*currentPackage).getIncludesClasses().size()));
+                    }
                 }
                 //Если ключевое слово interface
                 else if(foundLexemes.first == "interface"){
                     //Разбить интерфейс - (функция - splitInterface())
-                    interface_info foundInterface = splitInterface(file, indexCurrentString, indexCurrentSymbol,foundLexemes.second, errors);
+                    interface_info foundInterface = splitInterface(file, indexCurrentString, indexCurrentSymbol,foundLexemes.second, errors, numberFile);
                     foundInterface.setImport(imports);
                     //Добавить интерфейс к текущему пакету
                     (*currentPackage).addMapInterface(foundInterface);
+                    // Если интерфейсы превышают допустимые
+                    if((*currentPackage).getIncludesInterfaces().size() >15){
+                        errors.insert(error(typeMistakes::manyInterfacesInFile,numberFile,0,0,0,(*currentPackage).getIncludesInterfaces().size()));
+                    }
                 }
             }
         }
