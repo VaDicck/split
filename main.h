@@ -82,10 +82,11 @@ bool skipMultilineComment(const QStringList &code,  int &indexCurrentString, int
  * \param[in] needSimbols - список нужных символов
  * \param[in] endLexems - список завершающих лексем
  * \param[in,out] errors - контейнер для ошибок (изменяется в процессе)
+ * \param[in] nFile - номер файла в котором находимся
  * \return Пара: найденная лексема из нужных и список всех найденных лексем до окончательной
  */
 QPair<QString, QStringList> findLexemes(const QStringList &code, int &indexCurrentString, int &indexCurrentSimbol,
-                                        const QStringList &neededLexemes, const QStringList &needSimbols, const QStringList &endLexems, QSet<error>& errors);
+                                    const QStringList &neededLexemes, const QStringList &needSimbols, const QStringList &endLexems, QSet<error>& errors, const int& nFile);
 
 /*!
  * \brief splitPackage - Разбивает объявление пакета
@@ -109,9 +110,10 @@ QString splitImport(const QStringList &declarationImport);
  * \param[in,out] indexCurrentSimbol - текущий индекс символа (изменяется в процессе)
  * \param[in] declarationClass - объявление класса
  * \param[in,out] errors - контейнер для ошибок (изменяется в процессе)
+ * \param[in] nFile - номер файла в котором находимся
  * \return Информация о классе
  */
-class_info splitClass(const QStringList &code, int &indexCurrentString, int &indexCurrentSimbol,const QStringList &declarationClass, QSet<error> &errors);
+class_info splitClass(const QStringList &code, int &indexCurrentString, int &indexCurrentSimbol,const QStringList &declarationClass, QSet<error> &errors, const int& nFile);
 
 /*!
  * \brief splitInterface - Разбивает объявление интерфейса
@@ -120,9 +122,10 @@ class_info splitClass(const QStringList &code, int &indexCurrentString, int &ind
  * \param[in,out] indexCurrentSimbol - текущий индекс символа (изменяется в процессе)
  * \param[in] interfaceDeclaration - объявление интерфейса
  * \param[in,out] errors - контейнер для ошибок (изменяется в процессе)
+ * \param[in] nFile - номер файла в котором находимся
  * \return Информация об интерфейсе
  */
-interface_info splitInterface(const QStringList &code, int &indexCurrentString, int &indexCurrentSimbol , const QStringList &interfaceDeclaration, QSet<error> &errors);
+interface_info splitInterface(const QStringList &code, int &indexCurrentString, int &indexCurrentSimbol , const QStringList &interfaceDeclaration, QSet<error> &errors, const int& nFile);
 
 /*!
  * \brief splitMethod - Разбивает объявление метода
@@ -132,9 +135,10 @@ interface_info splitInterface(const QStringList &code, int &indexCurrentString, 
  * \param[in] nameClass - имя класса
  * \param[in] methodDeclaration - объявление метода
  * \param[in,out] errors - контейнер для ошибок (изменяется в процессе)
+ * \param[in] nFile - номер файла в котором находимся
  * \return Информация о методе
  */
-method splitMethod(const QStringList &code, int &indexCurrentString, int &indexCurrentSimbol, const QString &nameClass, const QStringList &methodDeclaration, QSet<error> &errors);
+method splitMethod(const QStringList &code, int &indexCurrentString, int &indexCurrentSimbol, const QString &nameClass, const QStringList &methodDeclaration, QSet<error> &errors, const int& nFile);
 
 /*!
  * \brief splitField - Разбивает объявление поля
