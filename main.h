@@ -81,9 +81,11 @@ bool skipMultilineComment(const QStringList &code,  int &indexCurrentString, int
  * \param[in] neededLexemes - список искомых лексем
  * \param[in] needSimbols - список нужных символов
  * \param[in] endLexems - список завершающих лексем
+ * \param[in,out] errors - контейнер для ошибок (изменяется в процессе)
  * \return Пара: найденная лексема из нужных и список всех найденных лексем до окончательной
  */
-QPair<QString, QStringList> findLexemes(const QStringList &code, int &indexCurrentString, int &indexCurrentSimbol, const QStringList &neededLexemes, const QStringList &needSimbols, const QStringList &endLexems);
+QPair<QString, QStringList> findLexemes(const QStringList &code, int &indexCurrentString, int &indexCurrentSimbol,
+                                        const QStringList &neededLexemes, const QStringList &needSimbols, const QStringList &endLexems, QSet<error>& errors);
 
 /*!
  * \brief splitPackage - Разбивает объявление пакета
