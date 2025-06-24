@@ -880,7 +880,7 @@ void testsplitclass::test_class() {
     QSet<error> actualErrors;
 
     // Вызов функции
-    class_info result = splitClass( code,actualIndexString,actualIndexSimbol,classDeclaration,actualErrors);
+    class_info result = splitClass( code,actualIndexString,actualIndexSimbol,classDeclaration,actualErrors, 0);
 
     // Проверка индексов
     QCOMPARE(actualIndexString, expectedIndexString);
