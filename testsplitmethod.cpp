@@ -444,7 +444,7 @@ void testsplitmethod::test_method() {
     int actualIndexSimbol = inputIndexSimbol;
     QSet<error> actualErrors;
 
-    method result = splitMethod(code, actualIndexString, actualIndexSimbol, nameClass, methodDeclaration, actualErrors);
+    method result = splitMethod(code, actualIndexString, actualIndexSimbol, nameClass, methodDeclaration, actualErrors, 0);
 
     QCOMPARE(actualIndexString, expectedIndexString);
     QCOMPARE(actualIndexSimbol, expectedIndexSimbol);
