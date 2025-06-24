@@ -352,7 +352,7 @@ void testFindLexemes::test_find_lexemes()
     int actualIndexSimbol = indexCurrentSimbol;
 
     StringPair actualResult = findLexemes(code, actualIndexString, actualIndexSimbol,
-                                          neededLexemes, needSimbols, endLexems, actualErrors);
+                                          neededLexemes, needSimbols, endLexems, actualErrors, 0);
 
     // Проверка результатов
     QCOMPARE(actualResult.first, expectedResult.first);
