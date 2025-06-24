@@ -648,7 +648,7 @@ class_info splitClass(const QStringList &code, int &indexCurrentString, int &ind
 
 // Разбить проект
 void splitProject(const QList<QStringList> &project, package_info &rootPack, QSet<error> &errors){
-    int numberFile = 0;// Номер файла
+    int numberFile = 1;// Номер файла
     //Для каждого файла в проекте
     for (const QStringList &file : project) {
         //Считать текущий пакет для записи данных пустым
@@ -696,7 +696,7 @@ void splitProject(const QList<QStringList> &project, package_info &rootPack, QSe
                 }
             }
         }
-
+        numberFile++;
     }
 }
 
@@ -776,96 +776,96 @@ void printErrors(const QSet<error>& errors) {
     for (const error& err : errors) {
         switch (err.getTypeMistake()) {
         case typeMistakes::inputFileDoesNotExist:
-            qDebug() << "Неверно указан файл с входными данными. Возможно, файл не существует.";
+            qInfo() << "Неверно указан файл с входными данными. Возможно, файл не существует.";
             break;
 
         case typeMistakes::inputJavaFileDoesNotExist:
-            qDebug() << "Указанный Java файл не существует:"
+            qInfo() << "Указанный Java файл не существует:"
                      << err.getPathJavaFile();
             break;
 
         case typeMistakes::manyStrokes:
-            qDebug() << "Превышено допустимое количество строк в" << err.getFileNumber()
+            qInfo() << "Превышено допустимое количество строк в" << err.getFileNumber()
                      << "файле. Максимально возможное количество строк 10000. Сейчас"
                      << err.getCountStrFile();
             break;
 
         case typeMistakes::inputFileEmpty:
-            qDebug() <<"Неверно указан файл с входными данными. Данный файл пуст.";
+            qInfo() <<"Неверно указан файл с входными данными. Данный файл пуст.";
             break;
 
         case typeMistakes::outputFileDoesNotExist:
-            qDebug() << "Неверно указан каталог с выходными данными. Возможно, каталога не существует.";
+            qInfo() << "Неверно указан каталог с выходными данными. Возможно, каталога не существует.";
             break;
 
         case typeMistakes::manyJavaFiles:
-            qDebug() << "Количество путей к файлам .java превышает допустимое. Максимальное количество 30. Сейчас"
+            qInfo() << "Количество путей к файлам .java превышает допустимое. Максимальное количество 30. Сейчас"
                      << err.getCountJavaFile();
             break;
 
         case typeMistakes::fileWithoutPackage:
-            qDebug() << "Явно не указан пакет в" << err.getFileNumber()
-                     << "файле.\n В каждом файле пакет должен быть явно указан.";
+            qInfo() << "Явно не указан пакет в" << err.getFileNumber()
+                     << "файле. В каждом файле пакет должен быть явно указан.";
             break;
 
         case typeMistakes::manyClassesInFile:
-            qDebug() << "Превышено количество классов в" << err.getFileNumber()
-                     << "файле.\n Максимально допустимое количество 15. Сейчас"
+            qInfo() << "Превышено количество классов в" << err.getFileNumber()
+                     << "файле. Максимально допустимое количество 15. Сейчас"
                      << err.getCountClasses();
             break;
 
         case typeMistakes::manyInterfacesInFile:
-            qDebug() << "Превышено количество интерфейсов в" << err.getFileNumber()
+            qInfo() << "Превышено количество интерфейсов в" << err.getFileNumber()
                      << "файле. Максимально допустимое количество 15. Сейчас"
                      << err.getCountInterfaces();
             break;
 
         case typeMistakes::manyMethodInClass:
-            qDebug() << "Превышено количество методов класса в" << err.getFileNumber()
+            qInfo() << "Превышено количество методов класса в" << err.getFileNumber()
                      << "файле в" << err.getNameClass() << "классе. Максимально допустимое методов 25. Сейчас"
                      << err.getCountMethod();
             break;
 
         case typeMistakes::manyMethodInInterface:
-            qDebug() << "Превышено количество методов интерфейса в" << err.getFileNumber()
+            qInfo() << "Превышено количество методов интерфейса в" << err.getFileNumber()
                      << "файле в" << err.getNameInterface() << "интерфейсе. Максимально допустимое количество методов 25. Сейчас"
                      << err.getCountMethod();
             break;
 
         case typeMistakes::manyFieldInClass:
-            qDebug() << "Превышено количество полей класса в" << err.getFileNumber()
+            qInfo() << "Превышено количество полей класса в" << err.getFileNumber()
                      << "файле в" << err.getNameClass() << "классе. Максимально допустимое количество полей 25. Сейчас"
                      << err.getCountField();
             break;
 
         case typeMistakes::manyFieldInInterface:
-            qDebug() << "Превышено количество полей интерфейса в" << err.getFileNumber()
+            qInfo() << "Превышено количество полей интерфейса в" << err.getFileNumber()
                      << "файле в" << err.getNameInterface() << "интерфейсе. Максимально допустимое количество полей 25. Сейчас"
                      << err.getCountField();
             break;
 
         case typeMistakes::noClosingFiguredScoop:
-            qDebug() << "Код синтаксически не верен. Отсутствует закрывающая фигурная скобка в"
+            qInfo() << "Код синтаксически не верен. Отсутствует закрывающая фигурная скобка в"
                      << err.getFileNumber() << "файле c" << err.getNumberStr() << "строки.";
             break;
 
         case typeMistakes::noOpenningFiguredScoop:
-            qDebug() << "Код синтаксически не верен. Отсутствует открывающая фигурная скобка в"
+            qInfo() << "Код синтаксически не верен. Отсутствует открывающая фигурная скобка в"
                      << err.getFileNumber() << "файле перед" << err.getNumberStr() << "строкой.";
             break;
 
         case typeMistakes::notClosedComment:
-            qDebug() << "Код синтаксически не верен. Многострочный комментарий не закрыт в"
+            qInfo() << "Код синтаксически не верен. Многострочный комментарий не закрыт в"
                      << err.getFileNumber() << "файле с" << err.getNumberStr() << "строки.";
             break;
 
         case typeMistakes::notClosedSingleQuotes:
-            qDebug() << "Код синтаксически не верен. Не закрыты одинарные кавычки в"
+            qInfo() << "Код синтаксически не верен. Не закрыты одинарные кавычки в"
                      << err.getFileNumber() << "файле с" << err.getNumberStr() << "строки.";
             break;
 
         case typeMistakes::notClosedDoubleQuotes:
-            qDebug() << "Код синтаксически не верен. Не закрыты двойные кавычки в"
+            qInfo() << "Код синтаксически не верен. Не закрыты двойные кавычки в"
                      << err.getFileNumber() << "файле с" << err.getNumberStr() << "строки.";
             break;
         }
@@ -893,13 +893,13 @@ bool createDataFiles(const QString& outputDirPath,const package_info& currentPac
     foreach(const package_info& currentPack, currentPackage.getChildren()){
         QDir(outputDirPath).mkdir(currentPack.getNamePackage());
         QString newDirPack = outputDirPath+"/"+currentPack.getNamePackage();
-        createDataFiles(newDirPack,currentPack, errors);
+        if(!createDataFiles(newDirPack,currentPack, errors)) return false;
     }
     return true;
 }
 
 // Создать данные о классе
-bool createDataClass(const QString& outputDirPath,const class_info& currentClass){
+void createDataClass(const QString& outputDirPath,const class_info& currentClass){
     // Создадим директорию класса
     QDir(outputDirPath).mkdir("class_"+currentClass.getNameClass());
     // Получим новый путь в директорию класса
@@ -925,7 +925,6 @@ bool createDataClass(const QString& outputDirPath,const class_info& currentClass
     foreach(const interface_info& nestedInterface,currentClass.getIncludeInterface()){
         createDataInterface(newDirPath, nestedInterface);
     }
-    return true;
 }
 
 // Сгенерировать xml и txt файлы для класса
@@ -1030,7 +1029,7 @@ void generateXMLClass(QXmlStreamWriter& writer, const class_info& currentClass,c
 }
 
 // Создать данные интерфейса
-bool createDataInterface(const QString& outputDirPath,const interface_info& currentInterface){
+void createDataInterface(const QString& outputDirPath,const interface_info& currentInterface){
     // Создадим директорию интерфейса
     QDir(outputDirPath).mkdir("interface_"+currentInterface.getNameInterface());
     // Создадим для нее новый путь
@@ -1056,7 +1055,6 @@ bool createDataInterface(const QString& outputDirPath,const interface_info& curr
     foreach(const class_info& nestedClass, currentInterface.getIncludeClass()){
         createDataClass(newDirPath, nestedClass);
     }
-    return true;
 }
 
 // Сгенерируем данные xml и txt о интерфейсе
