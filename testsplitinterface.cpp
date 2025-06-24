@@ -458,7 +458,7 @@ void testsplitinterface::test_split() {
     int actualIndexSimbol = inputIndexSimbol;
     QSet<error> actualErrors;
 
-    interface_info result = splitInterface(code,actualIndexString,actualIndexSimbol,interfaceDeclaration,actualErrors );
+    interface_info result = splitInterface(code,actualIndexString,actualIndexSimbol,interfaceDeclaration,actualErrors, 0 );
 
     // Проверка индексов
     QVERIFY2(actualIndexString == expectedIndexString,
