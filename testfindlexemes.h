@@ -10,6 +10,7 @@
 
 #include <QObject>
 #include <QTest>
+#include "testSplitBase.h"
 
 typedef QPair<QString, QStringList> StringPair;
 Q_DECLARE_METATYPE(StringPair)
@@ -19,14 +20,14 @@ Q_DECLARE_METATYPE(StringPair)
  * \ingroup TestClasses
  * \brief Тестовый класс для проверки поиска лексем в коде
  *
- * Этот класс предоставляет набор тестов для проверки корректности:
+ * Этот класс предоставляет набор тестов для проверки корректности используя базовый класс testSplitBase:
  * - Поиска и выделения лексем в исходном коде
  * - Обработки нужных лексем и завершающих
  * - Работы с позицией поиска в многострочном коде
  * - Обработки комментариев и строковых констант
+ * - Нахождении ошибок
  */
-class testFindLexemes : public QObject
-{
+class testFindLexemes : public testSplitBase{
     Q_OBJECT // Обязательный макрос
 private slots:
     /*!
