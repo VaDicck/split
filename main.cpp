@@ -6,8 +6,9 @@
 int main(int argc, char *argv[])
 {
     system("chcp 1251>nul");
+    QString firstArg =argv[1];
     // Если первый аргумент флаг тестирования
-    if(argv[1] == "-test"){
+    if(firstArg == "-test"){
         QTest::qExec(new testSkipMultipleComment);
         QTest::qExec(new testSkipConstant);
         QTest::qExec(new testFindLexemes);
@@ -32,7 +33,7 @@ int main(int argc, char *argv[])
     // Корневой пакет
     package_info rootPack("root");
     // Если смогли прочесть пути к Java файлам
-    if(readPrjFile(argv[1], javaFiles, errors)){
+    if(readPrjFile(firstArg, javaFiles, errors)){
         // Прочтем Java файлы
         readJavaFiles(javaFiles,code,errors);
         // Разобьем Java файлы
@@ -118,7 +119,8 @@ bool skipMultilineComment(const QStringList &code,  int &indexCurrentString, int
 }
 
 //Найти лексемы
-QPair<QString, QStringList> findLexemes(const QStringList &code, int &currentString, int &currentSymbol,const QStringList &neededLexemes,const QStringList &needSymbols, const QStringList &endLexemes)
+QPair<QString, QStringList> findLexemes(const QStringList &code, int &currentString, int &currentSymbol,
+                                const QStringList &neededLexemes,const QStringList &needSymbols, const QStringList &endLexemes, QSet<error>& errors)
 {
     // Флаг нужных лексем
     bool flagNeedLexemes = true;
@@ -156,17 +158,31 @@ QPair<QString, QStringList> findLexemes(const QStringList &code, int &currentStr
             // Если многострочный комментарий
             if(foundWord == "/*"){
                 //Пропустить многострочный комментарий
-                skipMultilineComment(code, currentString, currentSymbol);
+                if(!skipMultilineComment(code, currentString, currentSymbol)){
+                    errors.insert(error(typeMistakes::notClosedComment,0,0,0,0,0,0,0,0,0,currentString));
+                }
             }
             // Иначе если строковая константа
             else if(foundWord == "\""){
                 //Пропустить строковую константу
-                skipConstant(code[currentString], currentSymbol, '"');
+                if(!skipConstant(code[currentString], currentSymbol, '"')){
+                    errors.insert(error(typeMistakes::notClosedDoubleQuotes,0,0,0,0,0,0,0,0,0,currentString));
+                    // Так как строка считается неверноей, начнем поиск заново с новой строки
+                    foundLexemes.first.clear();
+                    foundLexemes.second.clear();
+                    flagNeedLexemes = true;
+                }
             }
             // Иначе если символьная константа
             else if(foundWord == "'"){
                 //Пропустить символьную константу
-                skipConstant(code[currentString], currentSymbol, '\'');
+                if(!skipConstant(code[currentString], currentSymbol, '\'')){
+                    errors.insert(error(typeMistakes::notClosedSingleQuotes,0,0,0,0,0,0,0,0,0,currentString));
+                    // Так как строка считается неверноей, начнем поиск заново с новой строки
+                    foundLexemes.first.clear();
+                    foundLexemes.second.clear();
+                    flagNeedLexemes = true;
+                }
             }
             // Иначе если однострочный комментарий
             else if(foundWord == "//"){
@@ -458,7 +474,7 @@ interface_info splitInterface(const QStringList &code, int &indexCurrentString, 
     //Пока текущая строка меньше количества строк кода
     while(indexCurrentString < code.size()){
         // Найдем объявление
-        QPair<QString, QStringList> foundLexemes  = findLexemes(code, indexCurrentString, indexCurrentSymbol,{ "class", "interface"}, {"[", "]", "(", ")", ",", "<", ">", "="}, {"{",";", "}"});
+        QPair<QString, QStringList> foundLexemes  = findLexemes(code, indexCurrentString, indexCurrentSymbol,{ "class", "interface"}, {"[", "]", "(", ")", ",", "<", ">", "="}, {"{",";", "}"}, errors);
         if(indexCurrentString<code.size()){
             // Если нашли завершение блока кода возвращем интерфейс
             if(foundLexemes.second.last() == "}") return foundInterface;
@@ -595,7 +611,7 @@ class_info splitClass(const QStringList &code, int &indexCurrentString, int &ind
     //Пока индекс текущей строки меньше количества строк кода
     while(indexCurrentString < code.size()) {
         // Найдем лексемы
-        QPair<QString, QStringList> foundLexemes = findLexemes(code, indexCurrentString, indexCurrentSymbol,{ "class", "interface"}, {"[", "]", "(", ")", ",", "<", ">", "="}, {"{",";", "}"});
+        QPair<QString, QStringList> foundLexemes = findLexemes(code, indexCurrentString, indexCurrentSymbol,{ "class", "interface"}, {"[", "]", "(", ")", ",", "<", ">", "="}, {"{",";", "}"}, errors);
         if(indexCurrentString<code.size()){
             // Если найдена завершающая скобка то вернем класс
             if(foundLexemes.second.last() == "}") return foundClass;
@@ -660,7 +676,7 @@ void splitProject(const QList<QStringList> &project, package_info &rootPack, QSe
         //Пока индекс текущей строки меньше количества строк
         while(indexCurrentString<file.size()){
             //Найти лексемы с нужными ключевыми словами {"package", "import", "class", "interface"}(функция - foundLexemes())
-            QPair<QString, QStringList> foundLexemes  = findLexemes(file, indexCurrentString, indexCurrentSymbol,{"package", "import", "class", "interface"}, {"*"}, {"{",";"});
+            QPair<QString, QStringList> foundLexemes  = findLexemes(file, indexCurrentString, indexCurrentSymbol,{"package", "import", "class", "interface"}, {"*"}, {"{",";"}, errors);
             //Если ключевое слово package
             if(foundLexemes.first == "package"){
                 //Разбить пакет (функция - splitPackage())
