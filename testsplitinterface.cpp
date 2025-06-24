@@ -441,7 +441,7 @@ void testsplitinterface::test_split_data() {
                {}, {}, {}
                )
         << 4 << 0
-        << QSet<error>({error(typeMistakes::noClosingFiguredScoop, 0, 0,0,0,0,0,0,0,0,4)});
+        << QSet<error>({error(typeMistakes::noClosingFiguredScoop, 0, 0,0,0,0,0,0,0,0,0)});
 }
 
 void testsplitinterface::test_split() {
