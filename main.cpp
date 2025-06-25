@@ -495,7 +495,7 @@ interface_info splitInterface(const QStringList &code, int &indexCurrentString, 
             }
             else {
                 // Иначе если есть круглая скобка(начало аргументов)
-                if(foundLexemes.second.contains("(") == true){
+                if((foundLexemes.second.contains("(") && !foundLexemes.second.contains("="))){
                     // разобьем метод и добавим к интерфейсу
                     method Method = splitMethod(code, indexCurrentString, indexCurrentSymbol, "", foundLexemes.second, errors, nFile);
                     QSet<method> methods = foundInterface.getMethods();
@@ -554,7 +554,7 @@ QMap<QString, field> splitField(const QStringList &fieldDeclaration){
         QString type;
         bool flagClose = false;
         int kolvoOpenScob = 0, kolvoCloseScob = 0;
-        while(flagClose == false || currentIndex != fieldDeclaration.size()-1){
+        while(flagClose == false && currentIndex != fieldDeclaration.size()-1){
             if(fieldDeclaration[currentIndex] == ",") type.append(fieldDeclaration[currentIndex] + " ");
             else type.append(fieldDeclaration[currentIndex]);
             if(fieldDeclaration[currentIndex] == "<"){
@@ -640,7 +640,7 @@ class_info splitClass(const QStringList &code, int &indexCurrentString, int &ind
                     foundClass.setIncludesClasses(includesClasses);
                 }
                 // Иначе если есть открывающая скобка(аргументы) или является статическим блоком кода
-                else if(foundLexemes.second.contains("(") || (foundLexemes.second.size()==2 &&foundLexemes.second[0]=="static")) {
+                else if((foundLexemes.second.contains("(") && !foundLexemes.second.contains("=")) || (foundLexemes.second.size()==2 &&foundLexemes.second[0]=="static")) {
                     // Разобьем метод
                     method Method = splitMethod(code, indexCurrentString, indexCurrentSymbol, foundClass.getNameClass(), foundLexemes.second, errors, nFile);
                     // Если является методом добавим к методам класса
